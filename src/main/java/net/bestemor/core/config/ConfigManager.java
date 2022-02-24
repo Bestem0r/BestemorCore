@@ -250,8 +250,8 @@ public class ConfigManager {
             String matString = getString(path + ".material");
 
             ItemStack item;
-            if (matString.contains("_")) {
-                String[] split = matString.split("_");
+            if (matString.contains(":")) {
+                String[] split = matString.split(":");
                 item = new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(split[1]));
             } else {
                 item = new ItemStack(Material.valueOf(getString(path + ".material")));
