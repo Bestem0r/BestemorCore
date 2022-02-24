@@ -1,9 +1,11 @@
 package net.bestemor.core.config;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConfigManager {
 
@@ -221,6 +225,8 @@ public class ConfigManager {
         private final Map<String, BigDecimal> currencyReplacements = new HashMap<>();
         private final Map<String, String> replacements = new HashMap<>();
 
+        private final Map<Enchantment, Integer> enchants = new HashMap<>();
+
         private ItemBuilder(String path) {
             this.path = path;
         }
@@ -230,13 +236,26 @@ public class ConfigManager {
             return this;
         }
 
+        public ItemBuilder addEnchant(Enchantment enchantment, int level) {
+            enchants.put(enchantment, level);
+            return this;
+        }
+
         public ItemBuilder replaceCurrency(String sOld, BigDecimal b) {
             currencyReplacements.put(sOld, b);
             return this;
         }
 
         public ItemStack build() {
-            ItemStack item = new ItemStack(Material.valueOf(getString(path + ".material")));
+            String matString = getString(path + ".material");
+
+            ItemStack item;
+            if (matString.contains("_")) {
+                String[] split = matString.split("_");
+                item = new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(split[1]));
+            } else {
+                item = new ItemStack(Material.valueOf(getString(path + ".material")));
+            }
 
             String name = getString(path + ".name");
             ListBuilder b = new ListBuilder(path + ".lore");
@@ -259,6 +278,9 @@ public class ConfigManager {
             if (meta != null) {
                 meta.setDisplayName(name);
                 meta.setLore(lore);
+                for (Enchantment enchantment : enchants.keySet()) {
+                    meta.addEnchant(enchantment, enchants.get(enchantment), true);
+                }
             }
 
             item.setItemMeta(meta);
