@@ -155,9 +155,13 @@ public class ConfigManager {
         if (cache.containsKey(path) && clazz.isInstance(cache.get(path))) {
             return clazz.cast(cache.get(path));
         }
-        T t = config.getObject(path, clazz);
-        cache.put(path, t);
-        return t;
+        Object o = config.get(path);
+        if (clazz.isInstance(o)) {
+            cache.put(path, o);
+            return clazz.cast(o);
+        } else {
+            return null;
+        }
     }
 
     private static void checkConfig() {
