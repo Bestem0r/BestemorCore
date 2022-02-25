@@ -22,8 +22,6 @@ public abstract class Menu {
     private final MenuContent content;
     private final Inventory inventory;
 
-    private final Map<Integer, Clickable> clickables = new HashMap<>();
-
     private boolean isCreated = false;
 
     protected Menu(MenuListener listener, int size, String name) {
@@ -84,8 +82,8 @@ public abstract class Menu {
         viewers.forEach(HumanEntity::closeInventory);
     }
 
-    protected Map<Integer, Clickable> getClickables() {
-        return clickables;
+    public MenuContent getContent() {
+        return content;
     }
 
     public Inventory getInventory() {

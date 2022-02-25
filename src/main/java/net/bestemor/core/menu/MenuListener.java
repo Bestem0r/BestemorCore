@@ -35,9 +35,10 @@ public class MenuListener implements Listener {
         List<Menu> menusCopy = new ArrayList<>(menus);
         for (Menu menu : menusCopy) {
             if (menu.hasPlayer(player)) {
-                int slot = event.getSlot();
-                if (menu.getClickables().containsKey(slot)) {
-                    menu.getClickables().get(slot).onClick(event);
+                int slot = event.getRawSlot();
+                if (menu.getContent().getClickables().containsKey(slot)) {
+                    event.setCancelled(true);
+                    menu.getContent().getClickables().get(slot).onClick(event);
                 }
                 menu.onClick(event);
             }
