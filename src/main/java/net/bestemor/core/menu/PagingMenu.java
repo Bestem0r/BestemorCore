@@ -15,12 +15,14 @@ public abstract class PagingMenu extends Menu {
     private final MenuListener listener;
 
     private final List<Menu> menus = new ArrayList<>();
+    private final String name;
 
     private boolean isCreated = false;
 
     protected PagingMenu(MenuListener listener, int size, String name) {
         super(listener, size, name);
 
+        this.name = name;
         this.listener = listener;
         this.pagingContent = new PagingContent();
     }
@@ -105,8 +107,9 @@ public abstract class PagingMenu extends Menu {
 
         for (int page = menus.size(); page < pages; page++) {
             int finalPage = page;
-            menus.add(new Menu(listener, super.getInventory().getSize(), super.getInventory().getName()) {
-
+            int size = super.getInventory().getSize();
+            String menuName = name.replace("%page%", String.valueOf(page + 1));
+            menus.add(new Menu(listener, size, menuName) {
                 @Override
                 protected void onCreate(MenuContent content) {
                     onCreatePage(content, finalPage);
