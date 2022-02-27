@@ -7,12 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class Menu {
@@ -24,7 +21,7 @@ public abstract class Menu {
 
     private boolean isCreated = false;
 
-    protected Menu(MenuListener listener, int size, String name) {
+    public Menu(MenuListener listener, int size, String name) {
         this.listener = listener;
         this.content = new MenuContent(size);
 
@@ -34,23 +31,30 @@ public abstract class Menu {
     protected void onClick(InventoryClickEvent event) {}
     protected void onClose(InventoryCloseEvent event) {}
 
+    /** Updates menu and applies clickables from MenuContent */
     public void update() {
         onUpdate(content);
-        loadContentToInventory();
+        for (Integer slot : content.getClickables().keySet()) {
+            inventory.setItem(slot, content.getClickables().get(slot).getItem());
+        }
     }
 
-    protected void onUpdate(MenuContent content) {
-        create();
-    };
+    protected void onUpdate(MenuContent content) {}
 
+    /** Runs when menu is initially created
+     * @param content Container of Clickables which is applied to the inventory */
     protected abstract void onCreate(MenuContent content);
 
-    private void create() {
+    /** Forcibly creates and updates the menu */
+    public void create() {
         inventory.clear();
         onCreate(content);
-        loadContentToInventory();
+        update();
     }
 
+    /** Creates and updates the menu if opened for the first time,
+     * then opens the menu for the player
+     * @param player Player to open the menu for */
     public void open(Player player) {
         if (!isCreated) {
             create();
@@ -60,12 +64,7 @@ public abstract class Menu {
         this.listener.registerMenu(this);
     }
 
-    private void loadContentToInventory() {
-        for (Integer slot : content.getClickables().keySet()) {
-            inventory.setItem(slot, content.getClickables().get(slot).getItem());
-        }
-    }
-
+    /** @return  Whether specified the player currently has this menu opened */
     public boolean hasPlayer(HumanEntity entity) {
         return inventory.getViewers().stream()
                 .map(Entity::getUniqueId)
@@ -73,19 +72,23 @@ public abstract class Menu {
                 .contains(entity.getUniqueId());
     }
 
+    /** @return List of current players viewing this menu */
     public List<HumanEntity> getViewers() {
         return inventory == null ? new ArrayList<>() : inventory.getViewers();
     }
 
+    /** Closes this menu for all active viewers */
     public void close() {
         List<HumanEntity> viewers = new ArrayList<>(getViewers());
         viewers.forEach(HumanEntity::closeInventory);
     }
 
+    /** @return Content containing clickables for this menu */
     public MenuContent getContent() {
         return content;
     }
 
+    /** @return The raw inventory used for this menu */
     public Inventory getInventory() {
         return inventory;
     }
