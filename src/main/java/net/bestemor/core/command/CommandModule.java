@@ -16,7 +16,9 @@ public class CommandModule implements CommandExecutor, TabCompleter {
 
     private Map<String, ISubCommand> subCommands;
     private JavaPlugin plugin;
+
     private String permissionPrefix;
+    private ChatColor pluginNameChatColor = ChatColor.AQUA;
 
     private CommandModule() {}
 
@@ -58,20 +60,25 @@ public class CommandModule implements CommandExecutor, TabCompleter {
         @Override
         public void run(CommandSender sender, String[] args) {
             List<String> help = new ArrayList<>();
-            help.add("§bVillagerMarket Commands:");
+            help.add("§l§m------ " + pluginNameChatColor + "§l " + plugin.getName() + " Commands §r§l§m ------");
             subCommands.forEach((k, v) -> {
-                help.add("> " + "§e" + ChatColor.translateAlternateColorCodes('&', v.getDescription()));
+                help.add("§b/" + v.getUsage() + "§7 - " + v.getDescription());
             });
             help.forEach(sender::sendMessage);
         }
         @Override
         public String getDescription() {
-            return "/vm help: &6List all of Villager Market's commands";
+            return "Show commands";
+        }
+
+        @Override
+        public String getUsage() {
+            return "help";
         }
 
         @Override
         public boolean requirePermission() {
-            return false;
+            return true;
         }
     }
 

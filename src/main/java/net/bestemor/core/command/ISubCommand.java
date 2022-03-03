@@ -11,6 +11,7 @@ public interface ISubCommand {
     void run(CommandSender sender, String[] args);
 
     String getDescription();
+    String getUsage();
 
     /** Returns true if subcommand requires special permission, false if not */
     boolean requirePermission();
