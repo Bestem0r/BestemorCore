@@ -53,6 +53,12 @@ public class CommandModule implements CommandExecutor, TabCompleter {
 
     private class HelpCommandI implements ISubCommand {
 
+        private final String mainCommandName;
+
+        private HelpCommandI(String mainCommandName) {
+            this.mainCommandName = mainCommandName;
+        }
+
         @Override
         public List<String> getCompletion(int index, String[] args) {
             return new ArrayList<>(); }
@@ -60,9 +66,9 @@ public class CommandModule implements CommandExecutor, TabCompleter {
         @Override
         public void run(CommandSender sender, String[] args) {
             List<String> help = new ArrayList<>();
-            help.add("§l§m------ " + pluginNameChatColor + "§l " + plugin.getName() + " Commands §r§l§m ------");
+            help.add("§l§m------§r " + pluginNameChatColor + "§l" + plugin.getName() + " Commands §r§l§m------");
             subCommands.forEach((k, v) -> {
-                help.add("§b/" + v.getUsage() + "§7 - " + v.getDescription());
+                help.add("§b/" + mainCommandName + k + " " + v.getUsage() + "§7 - " + v.getDescription());
             });
             help.forEach(sender::sendMessage);
         }
@@ -73,7 +79,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
 
         @Override
         public String getUsage() {
-            return "help";
+            return "";
         }
 
         @Override
@@ -85,7 +91,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
     /** Registers CommandModule as command
      * @param command Command name */
     public void register(String command) {
-        HelpCommandI helpCommand = new HelpCommandI();
+        HelpCommandI helpCommand = new HelpCommandI(command);
         subCommands.put("help", helpCommand);
 
         Objects.requireNonNull(plugin.getCommand(command)).setExecutor(this);
