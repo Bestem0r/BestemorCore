@@ -68,7 +68,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
             List<String> help = new ArrayList<>();
             help.add("§l§m------§r " + pluginNameChatColor + "§l" + plugin.getName() + " Commands §r§l§m------");
             subCommands.forEach((k, v) -> {
-                help.add("§b/" + mainCommandName + k + " " + v.getUsage() + "§7 - " + v.getDescription());
+                help.add("§b/" + mainCommandName + " " + k + " " + v.getUsage() + "§7 - " + v.getDescription());
             });
             help.forEach(sender::sendMessage);
         }
