@@ -41,6 +41,7 @@ public class MenuListener implements Listener {
                     menu.getContent().getClickables().get(slot).onClick(event);
                 }
                 menu.onClick(event);
+                break;
             }
         }
     }
