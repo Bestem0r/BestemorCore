@@ -27,7 +27,7 @@ public class MenuListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> menus.add(menu), 1L);
     }
 
-    @EventHandler (priority = EventPriority.HIGH)
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onClick(InventoryClickEvent event) {
 
         Player player = (Player) event.getWhoClicked();
@@ -36,8 +36,8 @@ public class MenuListener implements Listener {
         for (Menu menu : menusCopy) {
             if (menu.hasPlayer(player)) {
                 int slot = event.getRawSlot();
+                event.setCancelled(true);
                 if (menu.getContent().getClickables().containsKey(slot)) {
-                    event.setCancelled(true);
                     menu.getContent().getClickables().get(slot).onClick(event);
                 }
                 menu.onClick(event);
@@ -45,11 +45,12 @@ public class MenuListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
         for (Menu menu : menus) {
             if (menu.hasPlayer(event.getPlayer())) {
                 menu.onClose(event);
+                menu.close(event.getPlayer());
             }
         }
         menus.removeIf(menu -> menu.hasPlayer(event.getPlayer()) && menu.getViewers().size() == 1);

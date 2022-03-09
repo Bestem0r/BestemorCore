@@ -83,6 +83,10 @@ public abstract class Menu {
         viewers.forEach(HumanEntity::closeInventory);
     }
 
+    protected void close(HumanEntity player) {
+        inventory.getViewers().removeIf(v -> v.getUniqueId().equals(player.getUniqueId()));
+    }
+
     /** @return Content containing clickables for this menu */
     public MenuContent getContent() {
         return content;
