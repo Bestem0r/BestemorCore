@@ -37,10 +37,10 @@ public class MenuListener implements Listener {
             if (menu.hasPlayer(player)) {
                 int slot = event.getRawSlot();
                 event.setCancelled(true);
-                if (menu.getContent().getClickables().containsKey(slot)) {
+                menu.onClick(event);
+                if (menu.getContent().getClickables().containsKey(slot) && menu.getContent().getClickables().get(slot) != null) {
                     menu.getContent().getClickables().get(slot).onClick(event);
                 }
-                menu.onClick(event);
                 break;
             }
         }

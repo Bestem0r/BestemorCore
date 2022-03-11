@@ -20,6 +20,14 @@ public class Clickable {
         this.consumer = null;
     }
 
+    public static Clickable of(ItemStack item, Consumer<InventoryClickEvent> consumer) {
+        return new Clickable(item, consumer);
+    }
+
+    public static Clickable empty(ItemStack item) {
+        return new Clickable(item);
+    }
+
     /** Returns true if clickable, false if not */
     public boolean isClickable() {
         return this.consumer != null;

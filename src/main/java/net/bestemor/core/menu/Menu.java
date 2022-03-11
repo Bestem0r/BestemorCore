@@ -35,7 +35,11 @@ public abstract class Menu {
     public void update() {
         onUpdate(content);
         for (Integer slot : content.getClickables().keySet()) {
-            inventory.setItem(slot, content.getClickables().get(slot).getItem());
+            if (content.getClickables().get(slot) == null) {
+                inventory.setItem(slot, null);
+            } else {
+                inventory.setItem(slot, content.getClickables().get(slot).getItem());
+            }
         }
     }
 
