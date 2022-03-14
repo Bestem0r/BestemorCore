@@ -18,7 +18,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
     private JavaPlugin plugin;
 
     private String permissionPrefix;
-    private ChatColor pluginNameChatColor = ChatColor.AQUA;
+    private ChatColor pluginNameChatColor;
 
     private CommandModule() {}
 
@@ -27,6 +27,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
         private final JavaPlugin plugin;
         private final Map<String, ISubCommand> subCommands = new HashMap<>();
         private String permissionPrefix = "command";
+        private ChatColor pluginNameChatColor = ChatColor.AQUA;
 
         public Builder(JavaPlugin plugin) {
             this.plugin = plugin;
@@ -42,11 +43,17 @@ public class CommandModule implements CommandExecutor, TabCompleter {
             return this;
         }
 
+        public Builder pluginNameChatColor(ChatColor color) {
+            this.pluginNameChatColor = color;
+            return this;
+        }
+
         public CommandModule build() {
             CommandModule commandModule = new CommandModule();
             commandModule.subCommands = subCommands;
             commandModule.plugin = plugin;
             commandModule.permissionPrefix = permissionPrefix;
+            commandModule.pluginNameChatColor = pluginNameChatColor;
             return commandModule;
         }
     }
@@ -60,7 +67,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
         }
 
         @Override
-        public List<String> getCompletion(int index, String[] args) {
+        public List<String> getCompletion(String[] args) {
             return new ArrayList<>(); }
 
         @Override
@@ -68,7 +75,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
             List<String> help = new ArrayList<>();
             help.add("§l§m------§r " + pluginNameChatColor + "§l" + plugin.getName() + " Commands §r§l§m------");
             subCommands.forEach((k, v) -> {
-                help.add("§b/" + mainCommandName + " " + k + " " + v.getUsage() + "§7 - " + v.getDescription());
+                help.add("§b/" + mainCommandName + " " + k + (v.getUsage() == null || v.getUsage().equals("") ? "" : " ") + v.getUsage() + "§7 - " + v.getDescription());
             });
             help.forEach(sender::sendMessage);
         }
@@ -80,11 +87,6 @@ public class CommandModule implements CommandExecutor, TabCompleter {
         @Override
         public String getUsage() {
             return "";
-        }
-
-        @Override
-        public boolean requirePermission() {
-            return true;
         }
     }
 
@@ -130,7 +132,7 @@ public class CommandModule implements CommandExecutor, TabCompleter {
                     .collect(Collectors.toList());
         }
         if (subCommands.containsKey(args[0])) {
-            return subCommands.get(args[0]).getCompletion(args.length - 2, args);
+            return subCommands.get(args[0]).getCompletion(args);
         }
         return null;
     }

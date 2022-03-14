@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ISubCommand {
 
-    List<String> getCompletion(int index, String[] args);
+    List<String> getCompletion(String[] args);
 
     void run(CommandSender sender, String[] args);
 
@@ -14,5 +14,7 @@ public interface ISubCommand {
     String getUsage();
 
     /** Returns true if subcommand requires special permission, false if not */
-    boolean requirePermission();
+    default boolean requirePermission() {
+        return true;
+    }
 }
