@@ -1,6 +1,6 @@
 package net.bestemor.core.config;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ConfigManager {
-
-    private ConfigManager() {}
+public abstract class ConfigManager {
 
     private static FileConfiguration config;
 
@@ -28,6 +28,10 @@ public class ConfigManager {
 
     private final static Map<String, Object> cache = new HashMap<>();
     private final static Map<String, List<String>> listCache = new HashMap<>();
+
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#(\\w{5}[0-9a-f])");
+
+    private ConfigManager() {}
 
     public static void setConfig(FileConfiguration config) {
         ConfigManager.config = config;
@@ -56,7 +60,7 @@ public class ConfigManager {
 
     public static String getString(String path) {
         String s = get(path, String.class);
-        return s == null ? path : ChatColor.translateAlternateColorCodes('&', s);
+        return s == null ? path : translateColor(s);
     }
 
     /** @return Colored string with plugin prefix */
@@ -69,7 +73,8 @@ public class ConfigManager {
     }
 
     public static boolean getBoolean(String path) {
-        return get(path, Boolean.class);
+        Boolean b = get(path, Boolean.class);
+        return b != null && b;
     }
 
     public static double getDouble(String path) {
@@ -77,11 +82,13 @@ public class ConfigManager {
     }
 
     public static int getInt(String path) {
-        return get(path, Integer.class);
+        Integer i = get(path, Integer.class);
+        return i == null ? 0 : i;
     }
 
     public static long getLong(String path) {
-        return get(path, Integer.class);
+        Long l = get(path, Long.class);
+        return l == null ? 0 : l;
     }
 
     public static CurrencyBuilder getCurrencyBuilder(String path) {
@@ -169,6 +176,22 @@ public class ConfigManager {
         if (config == null) {
             throw new IllegalStateException("No FileConfiguration is loaded");
         }
+    }
+
+    private static String translateColor(String s) {
+
+        if (VersionUtils.getMCVersion() < 16) {
+            return ChatColor.translateAlternateColorCodes('&', s);
+        }
+
+        Matcher matcher = HEX_PATTERN.matcher(s);
+        StringBuffer buffer = new StringBuffer();
+
+        while(matcher.find()) {
+            matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
     }
 
     public static class CurrencyBuilder {
@@ -319,7 +342,7 @@ public class ConfigManager {
                     b.currencyReplacements = currencyReplacements;
                     line = b.build();
                 }
-                result.add(ChatColor.translateAlternateColorCodes('&', line));
+                result.add(translateColor(line));
             }
             return result;
         }
