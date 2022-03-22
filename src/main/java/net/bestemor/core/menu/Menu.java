@@ -54,6 +54,7 @@ public abstract class Menu {
         inventory.clear();
         onCreate(content);
         update();
+        isCreated = true;
     }
 
     /** Creates and updates the menu if opened for the first time,
@@ -62,7 +63,6 @@ public abstract class Menu {
     public void open(Player player) {
         if (!isCreated) {
             create();
-            isCreated = true;
         }
         player.openInventory(inventory);
         this.listener.registerMenu(this);

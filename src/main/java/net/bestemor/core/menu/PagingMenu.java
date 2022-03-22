@@ -57,6 +57,7 @@ public abstract class PagingMenu extends Menu {
     public void create() {
         onCreate(getContent());
         createPages();
+        isCreated = true;
     }
 
     @Override
@@ -74,7 +75,6 @@ public abstract class PagingMenu extends Menu {
     public void open(Player player, int page) {
         if (!isCreated) {
             create();
-            isCreated = true;
         }
         menus.get(page).open(player);
     }
