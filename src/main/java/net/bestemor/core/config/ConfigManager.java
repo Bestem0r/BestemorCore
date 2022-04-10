@@ -100,7 +100,12 @@ public abstract class ConfigManager {
         if (listCache.containsKey(path)) {
             return listCache.get(path);
         }
-        listCache.put(path, config.getStringList(path));
+        List<String> list = config.getStringList(path);
+        List<String> colored = new ArrayList<>();
+        for (String line : list) {
+            colored.add(ChatColor.translateAlternateColorCodes('&', line));
+        }
+        listCache.put(path, colored);
         return getStringList(path);
     }
 
