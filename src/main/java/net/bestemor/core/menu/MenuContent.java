@@ -10,6 +10,8 @@ public class MenuContent {
     private final int size;
     private final Map<Integer, Clickable> clickables = new HashMap<>();
 
+    private ItemStack lastFilledItem = null;
+
     public MenuContent(int size) {
         this.size = size;
     }
@@ -28,8 +30,9 @@ public class MenuContent {
      * @param slots Inventory slots to fill */
     public void fillSlots(ItemStack item, int... slots) {
         for (int s : slots) {
-            clickables.put(s, new Clickable(item));
+            clickables.put(s, Clickable.empty(item));
         }
+        this.lastFilledItem = item;
     }
 
     /** Fills edges of inventory with item
@@ -40,14 +43,20 @@ public class MenuContent {
                 clickables.put(s, new Clickable(item));
             }
         }
+        this.lastFilledItem = item;
     }
 
     /** Fills bottom of inventory with item
      * @param item ItemStack to fill */
     public void fillBottom(ItemStack item) {
         for (int s = size - 9; s < size; s++) {
-            clickables.put(s, new Clickable(item));
+            clickables.put(s, Clickable.empty(item));
         }
+        this.lastFilledItem = item;
+    }
+
+    protected ItemStack getLastFilledItem() {
+        return lastFilledItem;
     }
 
     protected Map<Integer, Clickable> getClickables() {

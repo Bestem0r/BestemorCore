@@ -4,6 +4,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,11 @@ public abstract class PagingMenu extends Menu {
 
     private final List<Menu> menus = new ArrayList<>();
     private final String name;
+
+    private ItemStack nextItem;
+    private ItemStack previousItem;
+    private int nextSlot;
+    private int previousSlot;
 
     private boolean isCreated = false;
 
@@ -35,13 +41,34 @@ public abstract class PagingMenu extends Menu {
     /** Runs when the page is updated
      * @param content Persistent content
      * @param page Menu page */
-    protected abstract void onUpdatePage(MenuContent content, int page);
+    protected void onUpdatePage(MenuContent content, int page) {};
 
     /** Runs when the PagingMenu is created or updated. PagingContent is loaded
      * and distributed across dynamically created menu pages
      * @param content Container of Clickables to distribute */
     protected abstract void onUpdatePagingContent(PagingContent content);
 
+    /** Sets ItemStack and slot used for the "next page" UI element
+     * @param nextItem ItemStack used as the "next page" item
+     * @param slot Inventory slot used */
+    public void setNextItem(ItemStack nextItem, int slot) {
+        if (slot >= getInventory().getSize()) {
+            throw new IllegalArgumentException("Inventory slot cannot be greater than or equal inventory size (" + getInventory().getSize() + ")! Got " + slot);
+        }
+        this.nextItem = nextItem;
+        this.nextSlot = slot;
+    }
+
+    /** Sets ItemStack and slot used for the "previous page" UI element
+     * @param previousItem ItemStack used as the "previous page" item
+     * @param slot Inventory slot used */
+    public void setPreviousItem(ItemStack previousItem, int slot) {
+        if (slot >= getInventory().getSize()) {
+            throw new IllegalArgumentException("Inventory slot cannot be greater than or equal inventory size (" + getInventory().getSize() + ")! Got " + slot);
+        }
+        this.previousItem = previousItem;
+        this.previousSlot = slot;
+    }
 
     protected void onClick(InventoryClickEvent event, int page) {}
     protected void onClose(InventoryCloseEvent event, int page) {}
@@ -118,6 +145,21 @@ public abstract class PagingMenu extends Menu {
                 @Override
                 protected void onUpdate(MenuContent content) {
                     onUpdatePage(content, finalPage);
+
+                    if (previousItem != null && finalPage != 0) {
+                        content.setClickable(previousSlot, Clickable.of(previousItem, (event) -> {
+                            PagingMenu.this.open((Player) event.getWhoClicked(), finalPage - 1);
+                        }));
+                    }
+                    if (nextItem != null && finalPage < getPages() - 1) {
+                        content.setClickable(nextSlot, Clickable.of(nextItem, (event) -> {
+                            PagingMenu.this.open((Player) event.getWhoClicked(), finalPage + 1);
+                        }));
+                    } else if (content.getLastFilledItem() != null) {
+                        content.setClickable(nextSlot, Clickable.empty(content.getLastFilledItem()));
+                    } else {
+                        content.setClickable(nextSlot, null);
+                    }
 
                     List<Integer> slots = getPagingSlots();
 
