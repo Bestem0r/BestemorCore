@@ -4,10 +4,12 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -21,10 +23,13 @@ import java.util.regex.Pattern;
 public abstract class ConfigManager {
 
     private static FileConfiguration config;
-
     private static String prefixPath = "prefix";
     private static String currencyPath = "currency";
     private static String isBeforePath = "currency_before";
+    private static String languagePath = "language";
+
+    private static File languagesFolder = null;
+    private static FileConfiguration languageConfig = null;
 
     private final static Map<String, Object> cache = new HashMap<>();
     private final static Map<String, List<String>> listCache = new HashMap<>();
@@ -41,6 +46,7 @@ public abstract class ConfigManager {
     public static void clearCache() {
         cache.clear();
         listCache.clear();
+        loadLanguageFile();
     }
 
     /** Sets path used to retrieve plugin prefix used in messages */
@@ -168,7 +174,8 @@ public abstract class ConfigManager {
         if (cache.containsKey(path) && clazz.isInstance(cache.get(path))) {
             return clazz.cast(cache.get(path));
         }
-        Object o = config.get(path);
+        Object langO = languageConfig.get(path);
+        Object o = clazz.isInstance(langO) ? langO : config.get(path);
         if (clazz.isInstance(o)) {
             cache.put(path, o);
             return clazz.cast(o);
@@ -181,6 +188,26 @@ public abstract class ConfigManager {
         if (config == null) {
             throw new IllegalStateException("No FileConfiguration is loaded");
         }
+    }
+
+    public static void setLanguagesFolder(File languagesFolder) {
+        ConfigManager.languagesFolder = languagesFolder;
+        loadLanguageFile();
+    }
+
+    private static void loadLanguageFile() {
+        String language = getString(languagePath);
+        if (language == null) {
+            language = "en_US";
+        }
+        File languageFile = new File(languagesFolder, language + ".yml");
+        if (!languageFile.exists()) {
+            languageConfig = YamlConfiguration.loadConfiguration(languageFile);
+        }
+    }
+
+    public static void setLanguagePath(String languagePath) {
+        ConfigManager.languagePath = languagePath;
     }
 
     private static String translateColor(String s) {
