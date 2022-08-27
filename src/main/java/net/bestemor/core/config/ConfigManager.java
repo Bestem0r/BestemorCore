@@ -174,7 +174,7 @@ public abstract class ConfigManager {
         if (cache.containsKey(path) && clazz.isInstance(cache.get(path))) {
             return clazz.cast(cache.get(path));
         }
-        Object langO = languageConfig.get(path);
+        Object langO = languageConfig == null ? null : languageConfig.get(path);
         Object o = clazz.isInstance(langO) ? langO : config.get(path);
         if (clazz.isInstance(o)) {
             cache.put(path, o);
