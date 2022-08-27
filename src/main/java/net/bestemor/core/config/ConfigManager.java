@@ -211,7 +211,6 @@ public abstract class ConfigManager {
      * @param languagesFolder Language folder */
     public static void setLanguagesFolder(File languagesFolder) {
         ConfigManager.languagesFolder = languagesFolder;
-        loadLanguageFile();
     }
 
     /** Copies language files included in the plugin .jar to the set language folder.
@@ -235,6 +234,7 @@ public abstract class ConfigManager {
                 }
             }
         }
+        loadLanguageFile();
     }
 
     private static void updateConfig(JavaPlugin plugin, String origin, String target) {
