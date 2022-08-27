@@ -1,6 +1,7 @@
 package net.bestemor.core.config;
 
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -8,8 +9,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -38,8 +42,21 @@ public abstract class ConfigManager {
 
     private ConfigManager() {}
 
+    /** Sets default config used by ConfigManager
+     * @param config Default configuration */
     public static void setConfig(FileConfiguration config) {
         ConfigManager.config = config;
+    }
+
+    /** Adds missing config values to default configuration from included
+     * config file in plugin .jar.
+     * @param plugin Plugin to load default config from. If no config is previously
+     * set, the config from this plugin will be set as the config used by ConfigManager. */
+    public static void updateConfig(JavaPlugin plugin) {
+        if (config == null) {
+            setConfig(plugin.getConfig());
+        }
+        updateConfig(plugin, "config", "config");
     }
 
     /** Clears cached config values */
@@ -190,9 +207,74 @@ public abstract class ConfigManager {
         }
     }
 
+    /** Sets folder to load language files from
+     * @param languagesFolder Language folder */
     public static void setLanguagesFolder(File languagesFolder) {
         ConfigManager.languagesFolder = languagesFolder;
         loadLanguageFile();
+    }
+
+    /** Copies language files included in the plugin .jar to the set language folder.
+     * @param plugin Plugin to load language files from.
+     * @param languages Languages to load. */
+    public static void loadLanguages(JavaPlugin plugin, String... languages) {
+        if (languagesFolder == null) {
+            throw new IllegalStateException("No languages folder set");
+        }
+        for (String language : languages) {
+            InputStream stream = plugin.getResource(language + ".yml");
+
+            File target = new File(languagesFolder, language + ".yml");
+            if (target.exists()) {
+                updateConfig(plugin, language, plugin.getName() + "/" + language);
+            } else {
+                try {
+                    FileUtils.copyInputStreamToFile(stream, target);
+                } catch (IOException | NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static void updateConfig(JavaPlugin plugin, String origin, String target) {
+
+        // Do not update configs which are not yet created
+        if (!new File(plugin.getDataFolder() + "/" + target + ".yml").exists()) {
+            return;
+        }
+
+        File targetFile = new File(plugin.getDataFolder() + "/" + target + ".yml");
+        FileConfiguration targetConfig = YamlConfiguration.loadConfiguration(targetFile);
+
+        // Create temporary file to load as FileConfiguration
+        InputStream inputStream = plugin.getResource(origin + ".yml");
+        File originFile = new File(plugin.getDataFolder(), origin + "_tmp.yml");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, originFile);
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        FileConfiguration originConfig = YamlConfiguration.loadConfiguration(originFile);
+        // Delete temporary file after loaded
+        originFile.delete();
+
+        boolean changes = false;
+        // Check if any keys are missing in the target config
+        for (String key : originConfig.getKeys(true)) {
+            if (!targetConfig.contains(key)) {
+                targetConfig.set(key, originConfig.get(key));
+                changes = true;
+            }
+        }
+
+        if (changes) {
+            try {
+                targetConfig.save(targetFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static void loadLanguageFile() {
