@@ -201,7 +201,7 @@ public abstract class ConfigManager {
             language = "en_US";
         }
         File languageFile = new File(languagesFolder, language + ".yml");
-        if (!languageFile.exists()) {
+        if (languageFile.exists()) {
             languageConfig = YamlConfiguration.loadConfiguration(languageFile);
         }
     }
