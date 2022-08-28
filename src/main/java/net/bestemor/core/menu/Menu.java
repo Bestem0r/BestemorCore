@@ -6,6 +6,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public abstract class Menu {
     }
 
     protected void onClick(InventoryClickEvent event) {}
+    protected void onDrag(InventoryDragEvent event) {}
     protected void onClose(InventoryCloseEvent event) {}
 
     /** Updates menu and applies clickables from MenuContent */

@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -42,6 +43,15 @@ public class MenuListener implements Listener {
                     menu.getContent().getClickables().get(slot).onClick(event);
                 }
                 break;
+            }
+        }
+    }
+
+    @EventHandler (priority = EventPriority.LOWEST)
+    public void onDrag(InventoryDragEvent event) {
+        for (Menu menu : menus) {
+            if (menu.hasPlayer(event.getWhoClicked())) {
+                menu.onDrag(event);
             }
         }
     }
