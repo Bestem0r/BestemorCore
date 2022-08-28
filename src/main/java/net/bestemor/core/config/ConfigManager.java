@@ -123,7 +123,8 @@ public abstract class ConfigManager {
         if (listCache.containsKey(path)) {
             return listCache.get(path);
         }
-        List<String> list = config.getStringList(path);
+        List<String> langList = languageConfig == null ? null : languageConfig.getStringList(path);
+        List<String> list = langList == null ? config.getStringList(path) : langList;
         List<String> colored = new ArrayList<>();
         for (String line : list) {
             colored.add(ChatColor.translateAlternateColorCodes('&', line));
@@ -279,7 +280,7 @@ public abstract class ConfigManager {
 
     private static void loadLanguageFile() {
         String language = getString(languagePath);
-        if (language == null) {
+        if (language == null || language.equals(languagePath)) {
             language = "en_US";
         }
         File languageFile = new File(languagesFolder, language + ".yml");
