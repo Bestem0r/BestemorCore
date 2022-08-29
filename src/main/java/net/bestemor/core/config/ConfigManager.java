@@ -68,7 +68,9 @@ public abstract class ConfigManager {
     public static void clearCache() {
         cache.clear();
         listCache.clear();
-        loadLanguageFile();
+        if (config != null && languagePath != null && languagesFolder != null) {
+            loadLanguageFile();
+        }
     }
 
     /** Sets path used to retrieve plugin prefix used in messages */
