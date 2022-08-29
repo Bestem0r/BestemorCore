@@ -50,11 +50,20 @@ public abstract class CorePlugin extends JavaPlugin {
             ConfigManager.loadLanguages(this, getLanguages());
         }
 
-        onPluginEnabled();
+        onPluginEnable();
         super.onEnable();
     }
 
-    protected abstract void onPluginEnabled();
+    @Override
+    public void onDisable() {
+        super.onDisable();
+        this.menuListener.closeAll();
+        onPluginDisable();
+    }
+
+    protected abstract void onPluginEnable();
+
+    protected void onPluginDisable() {};
 
     protected String[] getLanguages() {
         return new String[]{};
@@ -68,6 +77,8 @@ public abstract class CorePlugin extends JavaPlugin {
     public void reloadConfig() {
         super.reloadConfig();
 
+        ConfigManager.clearCache();
+        ConfigManager.setConfig(getConfig());
     }
 
     public MenuListener getMenuListener() {

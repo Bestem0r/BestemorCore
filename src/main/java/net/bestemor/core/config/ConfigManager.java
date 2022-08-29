@@ -228,19 +228,24 @@ public abstract class ConfigManager {
         }
         for (String language : languages) {
             InputStream stream = plugin.getResource(language + "_" + VersionUtils.getMCVersion() + ".yml");
+            String fileName = language + "_" + VersionUtils.getMCVersion();
+
             if (stream == null && VersionUtils.getMCVersion() < 13) {
                 stream = plugin.getResource(language + "_legacy" + ".yml");
+                fileName = language + "_legacy";
             }
+
+            fileName = stream == null ? language : fileName;
             stream = stream == null ? plugin.getResource(language + ".yml") : stream;
 
             File target = new File(languagesFolder, language + ".yml");
             try {
                 if (target.exists()) {
-                    ConfigUpdater.update(plugin, language + ".yml",  new File(plugin.getDataFolder() + languagesFolder.getName() + "/" + language));
+                    ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
                 } else {
                     FileUtils.copyInputStreamToFile(stream, target);
                 }
-            } catch (IOException | NullPointerException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
