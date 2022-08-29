@@ -24,29 +24,31 @@ public abstract class CorePlugin extends JavaPlugin {
         this.menuListener = new MenuListener(this);
         getServer().getPluginManager().registerEvents(menuListener, this);
 
+        InputStream stream = getResource( "config_" + VersionUtils.getMCVersion() + ".yml");
+        String fileName = "config_" + VersionUtils.getMCVersion();
+
+        if (stream == null && VersionUtils.getMCVersion() < 13) {
+            stream = getResource( "config_legacy.yml");
+            fileName = "config_legacy";
+        }
+
+        fileName = stream == null ? "config" : fileName;
+
         if (!new File(getDataFolder() + "/config.yml").exists()) {
-            if (VersionUtils.getMCVersion() < 13) {
-
-                InputStream versionConfig = getResource("config_" + VersionUtils.getMCVersion() + ".yml");
-                versionConfig = versionConfig == null ? getResource("config_legacy") : versionConfig;
-
-                if (versionConfig == null) {
-                    saveDefaultConfig();
-                    return;
-                }
-
+            if (stream == null) {
+                saveDefaultConfig();
+            } else {
                 File target = new File(getDataFolder() + "/config.yml");
                 try {
-                    FileUtils.copyInputStreamToFile(Objects.requireNonNull(versionConfig), target);
+                    FileUtils.copyInputStreamToFile(Objects.requireNonNull(stream), target);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-                saveDefaultConfig();
             }
         }
         ConfigManager.setConfig(getConfig());
         getConfig().options().copyDefaults(true);
+        ConfigManager.updateConfig(this, fileName);
 
         if (getLanguageFolder() != null) {
             ConfigManager.setLanguagesFolder(new File(getDataFolder(), getLanguageFolder()));

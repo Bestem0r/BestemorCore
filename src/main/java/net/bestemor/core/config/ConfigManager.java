@@ -53,12 +53,12 @@ public abstract class ConfigManager {
      * config file in plugin .jar.
      * @param plugin Plugin to load default config from. If no config is previously
      * set, the config from this plugin will be set as the config used by ConfigManager. */
-    public static void updateConfig(JavaPlugin plugin) {
+    public static void updateConfig(JavaPlugin plugin, String resource) {
         if (config == null) {
             setConfig(plugin.getConfig());
         }
         try {
-            ConfigUpdater.update(plugin, "config.yml", new File(plugin.getDataFolder() + "/config.yml"));
+            ConfigUpdater.update(plugin, resource + ".yml", new File(plugin.getDataFolder() + "/config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
