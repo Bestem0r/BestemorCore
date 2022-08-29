@@ -1,5 +1,6 @@
 package net.bestemor.core.config;
 
+import net.bestemor.core.config.updater.ConfigUpdater;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
@@ -56,7 +57,11 @@ public abstract class ConfigManager {
         if (config == null) {
             setConfig(plugin.getConfig());
         }
-        updateConfig(plugin, "config", "config");
+        try {
+            ConfigUpdater.update(plugin, "config.yml", new File(plugin.getDataFolder() + "/config.yml"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Clears cached config values */
@@ -222,60 +227,24 @@ public abstract class ConfigManager {
             throw new IllegalStateException("No languages folder set");
         }
         for (String language : languages) {
-            InputStream stream = plugin.getResource(language + ".yml");
+            InputStream stream = plugin.getResource(language + "_" + VersionUtils.getMCVersion() + ".yml");
+            if (stream == null && VersionUtils.getMCVersion() < 13) {
+                stream = plugin.getResource(language + "_legacy" + ".yml");
+            }
+            stream = stream == null ? plugin.getResource(language + ".yml") : stream;
 
             File target = new File(languagesFolder, language + ".yml");
-            if (target.exists()) {
-                updateConfig(plugin, language, plugin.getName() + "/" + language);
-            } else {
-                try {
-                    FileUtils.copyInputStreamToFile(stream, target);
-                } catch (IOException | NullPointerException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        loadLanguageFile();
-    }
-
-    private static void updateConfig(JavaPlugin plugin, String origin, String target) {
-
-        // Do not update configs which are not yet created
-        if (!new File(plugin.getDataFolder() + "/" + target + ".yml").exists()) {
-            return;
-        }
-
-        File targetFile = new File(plugin.getDataFolder() + "/" + target + ".yml");
-        FileConfiguration targetConfig = YamlConfiguration.loadConfiguration(targetFile);
-
-        // Create temporary file to load as FileConfiguration
-        InputStream inputStream = plugin.getResource(origin + ".yml");
-        File originFile = new File(plugin.getDataFolder(), origin + "_tmp.yml");
-        try {
-            FileUtils.copyInputStreamToFile(inputStream, originFile);
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-        }
-        FileConfiguration originConfig = YamlConfiguration.loadConfiguration(originFile);
-        // Delete temporary file after loaded
-        originFile.delete();
-
-        boolean changes = false;
-        // Check if any keys are missing in the target config
-        for (String key : originConfig.getKeys(true)) {
-            if (!targetConfig.contains(key)) {
-                targetConfig.set(key, originConfig.get(key));
-                changes = true;
-            }
-        }
-
-        if (changes) {
             try {
-                targetConfig.save(targetFile);
-            } catch (IOException e) {
+                if (target.exists()) {
+                    ConfigUpdater.update(plugin, language + ".yml",  new File(plugin.getDataFolder() + languagesFolder.getName() + "/" + language));
+                } else {
+                    FileUtils.copyInputStreamToFile(stream, target);
+                }
+            } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }
         }
+        loadLanguageFile();
     }
 
     private static void loadLanguageFile() {
