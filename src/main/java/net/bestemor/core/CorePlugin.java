@@ -3,7 +3,10 @@ package net.bestemor.core;
 import net.bestemor.core.config.ConfigManager;
 import net.bestemor.core.config.VersionUtils;
 import net.bestemor.core.menu.MenuListener;
+import net.bestemor.core.utils.UpdateChecker;
 import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -42,12 +45,16 @@ public abstract class CorePlugin extends JavaPlugin {
                 saveDefaultConfig();
             }
         }
+        ConfigManager.setConfig(getConfig());
         getConfig().options().copyDefaults(true);
 
-        ConfigManager.setConfig(getConfig());
         if (getLanguageFolder() != null) {
             ConfigManager.setLanguagesFolder(new File(getDataFolder(), getLanguageFolder()));
             ConfigManager.loadLanguages(this, getLanguages());
+        }
+
+        if (getSpigotResourceID() != 0) {
+            checkVersion();
         }
 
         onPluginEnable();
@@ -58,12 +65,31 @@ public abstract class CorePlugin extends JavaPlugin {
     public void onDisable() {
         super.onDisable();
         this.menuListener.closeAll();
+        Bukkit.getScheduler().cancelTasks(this);
         onPluginDisable();
+    }
+
+    private void checkVersion() {
+        int resourceId = getSpigotResourceID();
+        new UpdateChecker(this, resourceId).getVersion(version -> {
+            String currentVersion = this.getDescription().getVersion();
+            if (!currentVersion.equalsIgnoreCase(version)) {
+                String foundVersion = ChatColor.AQUA + "A new version of " + getDescription().getName() + " was found!";
+                String latestVersion = ChatColor.AQUA + "Latest version: " + ChatColor.GREEN + version;
+                String yourVersion = ChatColor.AQUA + "Your version: " + ChatColor.RED + currentVersion;
+                String downloadVersion = ChatColor.AQUA + "Get it here for the latest features and bug fixes: " + ChatColor.YELLOW + "https://www.spigotmc.org/resources/" + resourceId + "/";
+
+                getLogger().warning(foundVersion);
+                getLogger().warning(latestVersion);
+                getLogger().warning(yourVersion);
+                getLogger().warning(downloadVersion);
+            }
+        });
     }
 
     protected abstract void onPluginEnable();
 
-    protected void onPluginDisable() {};
+    protected void onPluginDisable() {}
 
     protected String[] getLanguages() {
         return new String[]{};
@@ -71,6 +97,10 @@ public abstract class CorePlugin extends JavaPlugin {
 
     protected String getLanguageFolder() {
         return null;
+    }
+
+    protected int getSpigotResourceID() {
+        return 0;
     }
 
     @Override
