@@ -196,11 +196,12 @@ public abstract class ConfigManager {
 
     private static <T> T get(String path, Class<T> clazz) {
         checkConfig();
+        // Check cache
         if (cache.containsKey(path) && clazz.isInstance(cache.get(path))) {
             return clazz.cast(cache.get(path));
         }
-        Object langO = languageConfig == null ? null : languageConfig.get(path);
-        Object o = clazz.isInstance(langO) ? langO : config.get(path);
+        Object confO = config.get(path);
+        Object o = languageConfig != null && (!clazz.isInstance(confO) || confO.equals(path)) ? languageConfig.get(path) : confO;
         if (clazz.isInstance(o)) {
             cache.put(path, o);
             return clazz.cast(o);
