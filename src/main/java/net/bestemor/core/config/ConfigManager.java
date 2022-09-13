@@ -194,6 +194,18 @@ public abstract class ConfigManager {
         }
     }
 
+    public static Object get(String path) {
+        checkConfig();
+        // Check cache
+        if (cache.containsKey(path)) {
+            return (cache.get(path));
+        }
+        Object confO = config.get(path);
+        Object o = languageConfig != null && (confO == null || confO.equals(path)) ? languageConfig.get(path) : confO;
+        cache.put(path, o);
+        return null;
+    }
+
     private static <T> T get(String path, Class<T> clazz) {
         checkConfig();
         // Check cache
@@ -239,15 +251,14 @@ public abstract class ConfigManager {
             }
 
             fileName = stream == null ? language : fileName;
-            stream = stream == null ? plugin.getResource(language + ".yml") : stream;
 
             File target = new File(languagesFolder, language + ".yml");
             try {
-                if (target.exists()) {
-                    ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
-                } else {
-                    FileUtils.copyInputStreamToFile(stream, target);
+                if (!target.exists()) {
+                    FileConfiguration targetConfig = YamlConfiguration.loadConfiguration(target);
+                    targetConfig.save(target);
                 }
+                ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
             } catch (Exception e) {
                 e.printStackTrace();
             }

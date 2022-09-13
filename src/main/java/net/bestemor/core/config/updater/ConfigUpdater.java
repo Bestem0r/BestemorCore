@@ -1,6 +1,7 @@
 package net.bestemor.core.config.updater;
 
 import com.google.common.base.Preconditions;
+import net.bestemor.core.config.ConfigManager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -59,6 +60,7 @@ public class ConfigUpdater {
             }
 
             Object currentValue = currentConfig.get(fullKey);
+            currentValue = currentValue == null || currentValue.equals(fullKey) ? ConfigManager.get(fullKey) : currentValue;
 
             if (currentValue == null) {
                 currentValue = defaultConfig.get(fullKey);
@@ -70,10 +72,12 @@ public class ConfigUpdater {
             if (currentValue instanceof ConfigurationSection) {
                 writer.write(indents + trailingKey + ":");
 
-                if (!((ConfigurationSection) currentValue).getKeys(false).isEmpty())
+                if (!((ConfigurationSection) currentValue).getKeys(false).isEmpty()) {
                     writer.write("\n");
-                else
+                }
+                else {
                     writer.write(" {}\n");
+                }
 
                 continue;
             }

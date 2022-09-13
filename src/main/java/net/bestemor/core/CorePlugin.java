@@ -48,12 +48,13 @@ public abstract class CorePlugin extends JavaPlugin {
         }
         ConfigManager.setConfig(getConfig());
         getConfig().options().copyDefaults(true);
-        ConfigManager.updateConfig(this, fileName);
 
         if (getLanguageFolder() != null) {
             ConfigManager.setLanguagesFolder(new File(getDataFolder(), getLanguageFolder()));
             ConfigManager.loadLanguages(this, getLanguages());
         }
+
+        ConfigManager.updateConfig(this, fileName);
 
         if (getSpigotResourceID() != 0) {
             checkVersion();
