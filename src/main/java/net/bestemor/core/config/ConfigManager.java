@@ -387,7 +387,11 @@ public abstract class ConfigManager {
             b.currencyReplacements = currencyReplacements;
             b.replacements = replacements;
 
-            List<String> lore = b.build();
+            List<String> tempLore = b.build();
+            List<String> lore = new ArrayList<>();
+            for (String s:tempLore) {
+                lore.add(Utils.PAPIParse(s));
+            }
 
             ItemMeta meta = item.getItemMeta();
 
