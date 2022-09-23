@@ -2,6 +2,7 @@ package net.bestemor.core.config;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.bestemor.core.config.updater.ConfigUpdater;
+import net.bestemor.core.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
@@ -381,7 +382,7 @@ public abstract class ConfigManager {
                 item = new ItemStack(Material.valueOf(getString(path + ".material")));
             }
 
-            String name = PlaceholderAPI.setPlaceholders(null,getString(path + ".name"));
+            String name = Utils.PAPIParse(getString(path + ".name"));
             ListBuilder b = new ListBuilder(path + ".lore");
             int customModelData = getInt(path + ".model");
             b.currencyReplacements = currencyReplacements;
@@ -449,7 +450,7 @@ public abstract class ConfigManager {
                     b.currencyReplacements = currencyReplacements;
                     line = b.build();
                 }
-                result.add(PlaceholderAPI.setPlaceholders(null, translateColor(line)));
+                result.add(Utils.PAPIParse(translateColor(line)));
             }
             return result;
         }
