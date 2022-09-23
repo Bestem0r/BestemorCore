@@ -4,7 +4,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.bestemor.core.config.updater.ConfigUpdater;
 import net.bestemor.core.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;

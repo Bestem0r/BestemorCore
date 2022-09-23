@@ -110,8 +110,13 @@ public abstract class CorePlugin extends JavaPlugin {
     public void reloadConfig() {
         super.reloadConfig();
 
-        ConfigManager.clearCache();
         ConfigManager.setConfig(getConfig());
+
+        if (getLanguageFolder() != null) {
+            ConfigManager.setLanguagesFolder(new File(getDataFolder(), getLanguageFolder()));
+            ConfigManager.loadLanguages(this, getLanguages());
+        }
+        ConfigManager.clearCache();
     }
 
     public MenuListener getMenuListener() {
