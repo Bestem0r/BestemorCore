@@ -60,6 +60,13 @@ public class ConfigUpdater {
             }
 
             Object currentValue = currentConfig.get(fullKey);
+
+            // For some reason the object has to already be in the ConfigManager cache for transferring
+            // old default config values to the new language files. To achieve this, ConfigManager#get()
+            // is called two times. Otherwise, the first language file not transfer config values correctly.
+            // This should arguably be fixed within the ConfigManager, but for now just leave it like this
+            // as the issue only seems to affect language loading during startup.
+            ConfigManager.get(fullKey);
             currentValue = currentValue == null || currentValue.equals(fullKey) ? ConfigManager.get(fullKey) : currentValue;
 
             if (currentValue == null) {
