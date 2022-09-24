@@ -27,7 +27,7 @@ public abstract class Menu {
         this.listener = listener;
         this.content = new MenuContent(size);
 
-        this.inventory = Bukkit.createInventory(null, size, Utils.PAPIParse(name));
+        this.inventory = Bukkit.createInventory(null, size, Utils.parsePAPI(name));
     }
 
     protected void onClick(InventoryClickEvent event) {}

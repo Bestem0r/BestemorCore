@@ -1,6 +1,5 @@
 package net.bestemor.core.config;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.bestemor.core.config.updater.ConfigUpdater;
 import net.bestemor.core.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
@@ -381,7 +380,7 @@ public abstract class ConfigManager {
                 item = new ItemStack(Material.valueOf(getString(path + ".material")));
             }
 
-            String name = Utils.PAPIParse(getString(path + ".name"));
+            String name = Utils.parsePAPI(getString(path + ".name"));
             ListBuilder b = new ListBuilder(path + ".lore");
             int customModelData = getInt(path + ".model");
             b.currencyReplacements = currencyReplacements;
@@ -390,7 +389,7 @@ public abstract class ConfigManager {
             List<String> tempLore = b.build();
             List<String> lore = new ArrayList<>();
             for (String s:tempLore) {
-                lore.add(Utils.PAPIParse(s));
+                lore.add(Utils.parsePAPI(s));
             }
 
             ItemMeta meta = item.getItemMeta();
@@ -410,8 +409,9 @@ public abstract class ConfigManager {
                 for (Enchantment enchantment : enchants.keySet()) {
                     meta.addEnchant(enchantment, enchants.get(enchantment), true);
                 }
-                if(customModelData > 0)
+                if (customModelData > 0) {
                     meta.setCustomModelData(customModelData);
+                }
             }
 
             item.setItemMeta(meta);
@@ -453,7 +453,7 @@ public abstract class ConfigManager {
                     b.currencyReplacements = currencyReplacements;
                     line = b.build();
                 }
-                result.add(Utils.PAPIParse(translateColor(line)));
+                result.add(Utils.parsePAPI(translateColor(line)));
             }
             return result;
         }
