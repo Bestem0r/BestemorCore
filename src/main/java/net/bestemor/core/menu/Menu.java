@@ -1,5 +1,6 @@
 package net.bestemor.core.menu;
 
+import net.bestemor.core.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -26,7 +27,7 @@ public abstract class Menu {
         this.listener = listener;
         this.content = new MenuContent(size);
 
-        this.inventory = Bukkit.createInventory(null, size, name);
+        this.inventory = Bukkit.createInventory(null, size, Utils.PAPIParse(name));
     }
 
     protected void onClick(InventoryClickEvent event) {}

@@ -1,6 +1,8 @@
 package net.bestemor.core.config;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.bestemor.core.config.updater.ConfigUpdater;
+import net.bestemor.core.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -379,12 +381,17 @@ public abstract class ConfigManager {
                 item = new ItemStack(Material.valueOf(getString(path + ".material")));
             }
 
-            String name = getString(path + ".name");
+            String name = Utils.PAPIParse(getString(path + ".name"));
             ListBuilder b = new ListBuilder(path + ".lore");
+            int customModelData = getInt(path + ".model");
             b.currencyReplacements = currencyReplacements;
             b.replacements = replacements;
 
-            List<String> lore = b.build();
+            List<String> tempLore = b.build();
+            List<String> lore = new ArrayList<>();
+            for (String s:tempLore) {
+                lore.add(Utils.PAPIParse(s));
+            }
 
             ItemMeta meta = item.getItemMeta();
 
@@ -403,6 +410,8 @@ public abstract class ConfigManager {
                 for (Enchantment enchantment : enchants.keySet()) {
                     meta.addEnchant(enchantment, enchants.get(enchantment), true);
                 }
+                if(customModelData > 0)
+                    meta.setCustomModelData(customModelData);
             }
 
             item.setItemMeta(meta);
@@ -444,7 +453,7 @@ public abstract class ConfigManager {
                     b.currencyReplacements = currencyReplacements;
                     line = b.build();
                 }
-                result.add(translateColor(line));
+                result.add(Utils.PAPIParse(translateColor(line)));
             }
             return result;
         }
