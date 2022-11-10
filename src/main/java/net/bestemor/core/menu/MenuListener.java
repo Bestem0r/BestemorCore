@@ -65,13 +65,12 @@ public class MenuListener implements Listener {
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
+        menus.removeIf(menu -> menu.getViewers().size() < 1);
         for (Menu menu : menus) {
             if (menu.hasPlayer(event.getPlayer())) {
                 menu.onClose(event);
-                menu.close(event.getPlayer());
             }
         }
-        menus.removeIf(menu -> menu.getViewers().size() < 1 || (menu.getViewers().size() == 1 && menu.hasPlayer(event.getPlayer())));
     }
 
 
