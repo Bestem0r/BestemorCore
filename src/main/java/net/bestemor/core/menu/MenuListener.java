@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MenuListener implements Listener {
@@ -26,6 +27,12 @@ public class MenuListener implements Listener {
      * @param menu Menu to register **/
     public void registerMenu(Menu menu) {
         Bukkit.getScheduler().runTaskLater(plugin, () -> menus.add(menu), 1L);
+    }
+
+    /** Unregisters menu
+     * @param menu Menu to unregister */
+    public void unregisterMenu(Menu menu) {
+        menus.remove(menu);
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
@@ -64,7 +71,7 @@ public class MenuListener implements Listener {
                 menu.close(event.getPlayer());
             }
         }
-        menus.removeIf(menu -> menu.hasPlayer(event.getPlayer()) && menu.getViewers().size() == 1);
+        menus.removeIf(menu -> menu.getViewers().size() < 1 || (menu.getViewers().size() == 1 && menu.hasPlayer(event.getPlayer())));
     }
 
 
@@ -72,5 +79,10 @@ public class MenuListener implements Listener {
     public void closeAll() {
         List<Menu> menusCopy = new ArrayList<>(menus);
         menusCopy.forEach(Menu::close);
+    }
+
+    /** Returns all currently registered menus */
+    public Collection<Menu> getRegisteredMenus() {
+        return new ArrayList<>(menus);
     }
 }
