@@ -1,22 +1,17 @@
 package net.bestemor.core.config;
 
+import net.bestemor.core.CorePlugin;
 import net.bestemor.core.config.updater.ConfigUpdater;
-import net.bestemor.core.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +31,7 @@ public abstract class ConfigManager {
     private static File languagesFolder = null;
     private static FileConfiguration languageConfig = null;
 
+    private final static Map<String, String> stringMappings = new HashMap<>();
     private final static Map<String, Object> cache = new HashMap<>();
     private final static Map<String, List<String>> listCache = new HashMap<>();
 
@@ -90,6 +86,9 @@ public abstract class ConfigManager {
 
     public static String getString(String path) {
         String s = get(path, String.class);
+        if (s != null && stringMappings.containsKey(s)) {
+            s = stringMappings.get(s);
+        }
         return s == null ? path : translateColor(s);
     }
 
@@ -121,10 +120,6 @@ public abstract class ConfigManager {
         return l == null ? 0 : l;
     }
 
-    public static CurrencyBuilder getCurrencyBuilder(String path) {
-        return new CurrencyBuilder(getString(path));
-    }
-
     public static List<String> getStringList(String path) {
         checkConfig();
         if (listCache.containsKey(path)) {
@@ -140,6 +135,34 @@ public abstract class ConfigManager {
         return getStringList(path);
     }
 
+    public static void loadMappings(InputStream stream) {
+        if (stream == null) {
+            return;
+        }
+
+        FileConfiguration mapping = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
+
+        ConfigurationSection generalSection = mapping.getConfigurationSection("general");
+        if (generalSection != null) {
+            for (String key : generalSection.getKeys(false)) {
+                stringMappings.put(key, generalSection.getString(key));
+            }
+        }
+
+        ConfigurationSection legacySection = mapping.getConfigurationSection("legacy");
+        if (legacySection != null && VersionUtils.getMCVersion() < 13) {
+            for (String key : legacySection.getKeys(false)) {
+                stringMappings.put(key, legacySection.getString(key));
+            }
+        }
+        ConfigurationSection versionSection = mapping.getConfigurationSection("1." + VersionUtils.getMCVersion());
+        if (versionSection != null) {
+            for (String key : versionSection.getKeys(false)) {
+                stringMappings.put(key, versionSection.getString(key));
+            }
+        }
+    }
+
     public static ListBuilder getListBuilder(String path) {
         checkConfig();
         return new ListBuilder(path);
@@ -148,6 +171,10 @@ public abstract class ConfigManager {
     public static ItemBuilder getItem(String path) {
         checkConfig();
         return new ItemBuilder(path);
+    }
+
+    public static CurrencyBuilder getCurrencyBuilder(String path) {
+        return new CurrencyBuilder(getString(path));
     }
 
     public static String getTimeLeft(Instant time) {
@@ -237,11 +264,12 @@ public abstract class ConfigManager {
     /** Copies language files included in the plugin .jar to the set language folder.
      * @param plugin Plugin to load language files from.
      * @param languages Languages to load. */
-    public static void loadLanguages(JavaPlugin plugin, String... languages) {
+    public static void loadLanguages(CorePlugin plugin, String... languages) {
         if (languagesFolder == null) {
             throw new IllegalStateException("No languages folder set");
         }
         for (String language : languages) {
+            // Get version dependent language file
             InputStream stream = plugin.getResource(language + "_" + VersionUtils.getMCVersion() + ".yml");
             String fileName = language + "_" + VersionUtils.getMCVersion();
 
@@ -258,7 +286,9 @@ public abstract class ConfigManager {
                     FileConfiguration targetConfig = YamlConfiguration.loadConfiguration(target);
                     targetConfig.save(target);
                 }
-                ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
+                if (plugin.enableAutoUpdate()) {
+                    ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -281,8 +311,7 @@ public abstract class ConfigManager {
         ConfigManager.languagePath = languagePath;
     }
 
-    private static String translateColor(String s) {
-
+    public static String translateColor(String s) {
         if (VersionUtils.getMCVersion() < 16) {
             return ChatColor.translateAlternateColorCodes('&', s);
         }
@@ -297,165 +326,15 @@ public abstract class ConfigManager {
         return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
     }
 
-    public static class CurrencyBuilder {
-
-        private String s;
-        boolean addPrefix = false;
-        private final Map<String, String> replacements = new HashMap<>();
-        private Map<String, BigDecimal> currencyReplacements = new HashMap<>();
-
-        public CurrencyBuilder(String s) {
-            this.s = s;
-        }
-
-        public String build() {
-            boolean isBefore = getBoolean(isBeforePath);
-            String currency = getString(currencyPath);
-
-            for (String sOld : replacements.keySet()) {
-                s = s.replace(sOld, replacements.get(sOld));
-            }
-            for (String sOld : currencyReplacements.keySet()) {
-                String amount = new BigDecimal(currencyReplacements.get(sOld).toString()).setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
-                s = s.replace(sOld, isBefore ? (currency + amount) : (amount + currency));
-            }
-            if (addPrefix) {
-                s = getString(prefixPath) + " " + s;
-            }
-            return s;
-        }
-
-        public CurrencyBuilder replace(String sOld, String sNew) {
-            replacements.put(sOld, sNew);
-            return this;
-        }
-
-        public CurrencyBuilder replaceCurrency(String replace, BigDecimal b) {
-            currencyReplacements.put(replace, b);
-            return this;
-        }
-
-        public CurrencyBuilder addPrefix() {
-            addPrefix = true;
-            return this;
-        }
+    public static boolean isCurrencyBefore() {
+        return getBoolean(isBeforePath);
     }
 
-    public static class ItemBuilder {
-
-        private final String path;
-
-        private final Map<String, BigDecimal> currencyReplacements = new HashMap<>();
-        private final Map<String, String> replacements = new HashMap<>();
-
-        private final Map<Enchantment, Integer> enchants = new HashMap<>();
-
-        private ItemBuilder(String path) {
-            this.path = path;
-        }
-
-        public ItemBuilder replace(String sOld, String sNew) {
-            replacements.put(sOld, sNew);
-            return this;
-        }
-
-        public ItemBuilder addEnchant(Enchantment enchantment, int level) {
-            enchants.put(enchantment, level);
-            return this;
-        }
-
-        public ItemBuilder replaceCurrency(String sOld, BigDecimal b) {
-            currencyReplacements.put(sOld, b);
-            return this;
-        }
-
-        public ItemStack build() {
-            String matString = getString(path + ".material");
-
-            ItemStack item;
-            if (matString.contains(":")) {
-                String[] split = matString.split(":");
-                item = new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(split[1]));
-            } else {
-                item = new ItemStack(Material.valueOf(getString(path + ".material")));
-            }
-
-            String name = Utils.parsePAPI(getString(path + ".name"));
-            ListBuilder b = new ListBuilder(path + ".lore");
-            int customModelData = getInt(path + ".model");
-            b.currencyReplacements = currencyReplacements;
-            b.replacements = replacements;
-
-            List<String> tempLore = b.build();
-            List<String> lore = new ArrayList<>();
-            for (String s:tempLore) {
-                lore.add(Utils.parsePAPI(s));
-            }
-
-            ItemMeta meta = item.getItemMeta();
-
-            if (!currencyReplacements.isEmpty()) {
-                CurrencyBuilder c = new CurrencyBuilder(name);
-                c.currencyReplacements = currencyReplacements;
-                name = c.build();
-            }
-            for (String sOld : replacements.keySet()) {
-                name = name.replace(sOld, replacements.get(sOld));
-            }
-
-            if (meta != null) {
-                meta.setDisplayName(name);
-                meta.setLore(lore);
-                for (Enchantment enchantment : enchants.keySet()) {
-                    meta.addEnchant(enchantment, enchants.get(enchantment), true);
-                }
-                if (customModelData > 0) {
-                    meta.setCustomModelData(customModelData);
-                }
-            }
-
-            item.setItemMeta(meta);
-            return item;
-        }
+    public static String getCurrency() {
+        return getString(currencyPath);
     }
 
-    public static class ListBuilder {
-
-        private final String path;
-        private Map<String, String> replacements = new HashMap<>();
-        private Map<String, BigDecimal> currencyReplacements = new HashMap<>();
-
-        private ListBuilder(String path) {
-            this.path = path;
-        }
-
-        public ListBuilder replace(String sOld, String sNew) {
-            replacements.put(sOld, sNew);
-            return this;
-        }
-
-        public ListBuilder replaceCurrency(String s, BigDecimal amount) {
-            currencyReplacements.put(s, amount);
-            return this;
-        }
-
-        public List<String> build() {
-
-            List<String> original = getStringList(path);
-            List<String> result = new ArrayList<>();
-
-            for (String line : original) {
-                for (String sOld : replacements.keySet()) {
-                    line = line.replace(sOld, replacements.get(sOld));
-                }
-                if (!currencyReplacements.isEmpty()) {
-                    CurrencyBuilder b = new CurrencyBuilder(line);
-                    b.currencyReplacements = currencyReplacements;
-                    line = b.build();
-                }
-                result.add(Utils.parsePAPI(translateColor(line)));
-            }
-            return result;
-        }
+    public static String getPrefix() {
+        return getString(prefixPath);
     }
 }

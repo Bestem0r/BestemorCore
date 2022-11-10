@@ -24,6 +24,9 @@ public abstract class CorePlugin extends JavaPlugin {
         this.menuListener = new MenuListener(this);
         getServer().getPluginManager().registerEvents(menuListener, this);
 
+        ConfigManager.loadMappings(getResource("config_mappings.yml"));
+
+        // Get version dependent config
         InputStream stream = getResource( "config_" + VersionUtils.getMCVersion() + ".yml");
         String fileName = "config_" + VersionUtils.getMCVersion();
 
@@ -54,7 +57,9 @@ public abstract class CorePlugin extends JavaPlugin {
             ConfigManager.loadLanguages(this, getLanguages());
         }
 
-        ConfigManager.updateConfig(this, fileName);
+        if (enableAutoUpdate()) {
+            ConfigManager.updateConfig(this, fileName);
+        }
 
         if (getSpigotResourceID() != 0) {
             checkVersion();
@@ -91,6 +96,10 @@ public abstract class CorePlugin extends JavaPlugin {
     }
 
     protected abstract void onPluginEnable();
+
+    public boolean enableAutoUpdate() {
+        return true;
+    }
 
     protected void onPluginDisable() {}
 
