@@ -3,7 +3,6 @@ package net.bestemor.core.config;
 import net.bestemor.core.CorePlugin;
 import net.bestemor.core.config.updater.ConfigUpdater;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,6 +19,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** Static utility class used to quickly retrieve values from default configuration
+ * and language configurations. Supports auto-updating configs, per-version configs,
+ * value mappings, and easy language file implementation. Automatically initiated by
+ * extending {@link CorePlugin}. Otherwise, run {@link #setConfig(FileConfiguration)}
+ * inside your plugin implementation. */
 public abstract class ConfigManager {
 
     private static FileConfiguration config;
@@ -27,6 +31,7 @@ public abstract class ConfigManager {
     private static String currencyPath = "currency";
     private static String isBeforePath = "currency_before";
     private static String languagePath = "language";
+    private static boolean addPrefixSpace = true;
 
     private static File languagesFolder = null;
     private static FileConfiguration languageConfig = null;
@@ -60,7 +65,7 @@ public abstract class ConfigManager {
         }
     }
 
-    /** Clears cached config values */
+    /** Clears cached config values. */
     public static void clearCache() {
         cache.clear();
         listCache.clear();
@@ -69,17 +74,17 @@ public abstract class ConfigManager {
         }
     }
 
-    /** Sets path used to retrieve plugin prefix used in messages */
+    /** Sets path used to retrieve plugin prefix used in messages. */
     public static void setPrefixPath(String path) {
         prefixPath = path;
     }
 
-    /** Sets path used for currency symbol */
+    /** Sets path used for currency symbol. */
     public static void setCurrencyPath(String currencyPath) {
         ConfigManager.currencyPath = currencyPath;
     }
 
-    /** Sets path used to determine if currency symbol should be before value */
+    /** Sets path used to determine if currency symbol should be before value. */
     public static void setIsBeforePath(String isBeforePath) {
         ConfigManager.isBeforePath = isBeforePath;
     }
@@ -94,7 +99,7 @@ public abstract class ConfigManager {
 
     /** @return Colored string with plugin prefix */
     public static String getMessage(String path) {
-        return prefixPath == null ? "" : (getString(prefixPath) + " ") + getString(path);
+        return prefixPath == null ? "" : (getString(prefixPath) + (addPrefixSpace ? " " : "")) + getString(path);
     }
 
     public static Sound getSound(String path) {
@@ -135,6 +140,30 @@ public abstract class ConfigManager {
         return getStringList(path);
     }
 
+    /** Loads mappings from input stream to cache. Input stream must be possible to read
+     * as YAML file. Mappings are intended as an alternative method to support multiple
+     * Minecraft versions, by replacing provided keys by provided values per-version.
+     * This can be done by providing replacements for {@link org.bukkit.Material} and {@link Sound}, where these
+     * enums differs from version to version.
+     * <p>
+     * There are three configuration sections that will be loaded into mappings when running this function:
+     * <ul>
+     *     <li>{@code general} - Always loaded.</li>
+     *     <li>{@code 1_<version>} - Loads only when server version equals version</li>
+     *     <li>{@code legacy} - Loads if server version is less than 1.13</li>
+     * </ul>
+     *
+     * Example:
+     *     <pre>
+     * {@code general:
+     *     DIAMOND_BLOCK: EMERALD_BLOCK
+     * 1_8: #For servers running 1.8.x
+     *    ENTITY_VILLAGER_TRADE: VILLAGER_YES
+     * legacy: #For <1.13
+     *    RED_TERRACOTTA: STAINED_CLAY:14
+     *     }
+     *     </pre>
+     * */
     public static void loadMappings(InputStream stream) {
         if (stream == null) {
             return;
@@ -177,6 +206,9 @@ public abstract class ConfigManager {
         return new CurrencyBuilder(getString(path));
     }
 
+    /** Returns how much time until the given instant.
+     * @param time Instant to calculate remaining time to.
+     * @return Time remaining as a readable string. */
     public static String getTimeLeft(Instant time) {
         if (time == null || time.getEpochSecond() == 0) {
             return getUnit("never", false);
@@ -201,6 +233,10 @@ public abstract class ConfigManager {
         return builder.toString();
     }
 
+    /** Returns localized unit from configuration.
+     * @param u Unit (s/m/h/d/never).
+     * @param plural If localized unit should be in plural or not.
+     * @return Localized unit. */
     public static String getUnit(String u, boolean plural) {
         if (u.equals("infinite")) {
             return getString("time.indefinitely");
@@ -255,8 +291,8 @@ public abstract class ConfigManager {
         }
     }
 
-    /** Sets folder to load language files from
-     * @param languagesFolder Language folder */
+    /** Sets folder to load language files from.
+     * @param languagesFolder Language folder. */
     public static void setLanguagesFolder(File languagesFolder) {
         ConfigManager.languagesFolder = languagesFolder;
     }
@@ -307,10 +343,15 @@ public abstract class ConfigManager {
         }
     }
 
+    /** Sets configuration path used to retrieve which language should be in use.
+     * @param languagePath Path to language name. */
     public static void setLanguagePath(String languagePath) {
         ConfigManager.languagePath = languagePath;
     }
 
+    /** Adds color to provided string. Supports standard Minecraft colors using '&',
+     * and hex colors using &#.
+     * @param s String to colorize. */
     public static String translateColor(String s) {
         if (VersionUtils.getMCVersion() < 16) {
             return ChatColor.translateAlternateColorCodes('&', s);
@@ -324,6 +365,13 @@ public abstract class ConfigManager {
         }
 
         return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
+    }
+
+    /** Sets if spacing should be added between plugin prefix and
+     * message for {@link #getMessage(String)}.
+     * @param addPrefixSpace If space should be added or not. */
+    public static void setAddPrefixSpace(boolean addPrefixSpace) {
+        ConfigManager.addPrefixSpace = addPrefixSpace;
     }
 
     public static boolean isCurrencyBefore() {
