@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +214,7 @@ public abstract class ConfigManager {
         if (time == null || time.getEpochSecond() == 0) {
             return getUnit("never", false);
         }
-        Instant difference = time.minusSeconds(Instant.now().getEpochSecond());
+        Instant difference = time.minusSeconds(Instant.now().getEpochSecond()).truncatedTo(ChronoUnit.MINUTES);
         StringBuilder builder = new StringBuilder();
         int days = (int) Math.floor(difference.getEpochSecond() / 86400d);
         int hours = (int) Math.floor((difference.getEpochSecond() - (days * 86400d)) / 3600d);
