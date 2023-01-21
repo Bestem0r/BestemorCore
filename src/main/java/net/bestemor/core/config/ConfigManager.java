@@ -98,6 +98,13 @@ public abstract class ConfigManager {
         return s == null ? path : translateColor(s);
     }
 
+    /** Looks up a string in the loaded config mappings (config_mappings.yml)
+     * and returns the mapped value. If no mapping is found, returns the input.
+     * @return Mapped string. */
+    public static String getMappedString(String s) {
+        return s == null ? null : stringMappings.getOrDefault(s, s);
+    }
+
     /** @return Colored string with plugin prefix */
     public static String getMessage(String path) {
         return prefixPath == null ? "" : (getString(prefixPath) + (addPrefixSpace ? " " : "")) + getString(path);
