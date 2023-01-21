@@ -87,10 +87,10 @@ public abstract class CorePlugin extends JavaPlugin {
                 String yourVersion = ChatColor.AQUA + "Your version: " + ChatColor.RED + currentVersion;
                 String downloadVersion = ChatColor.AQUA + "Get it here for the latest features and bug fixes: " + ChatColor.YELLOW + "https://www.spigotmc.org/resources/" + resourceId + "/";
 
-                getLogger().warning(foundVersion);
-                getLogger().warning(latestVersion);
-                getLogger().warning(yourVersion);
-                getLogger().warning(downloadVersion);
+                Bukkit.getConsoleSender().sendMessage(foundVersion);
+                Bukkit.getConsoleSender().sendMessage(latestVersion);
+                Bukkit.getConsoleSender().sendMessage(yourVersion);
+                Bukkit.getConsoleSender().sendMessage(downloadVersion);
             }
         });
     }
