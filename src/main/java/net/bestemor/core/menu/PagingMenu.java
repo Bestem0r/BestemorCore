@@ -20,8 +20,8 @@ public abstract class PagingMenu extends Menu {
 
     private ItemStack nextItem;
     private ItemStack previousItem;
-    private int nextSlot;
-    private int previousSlot;
+    private int nextSlot = -1;
+    private int previousSlot = -1;
 
     private boolean isCreated = false;
 
@@ -155,9 +155,9 @@ public abstract class PagingMenu extends Menu {
                         content.setClickable(nextSlot, Clickable.of(nextItem, (event) -> {
                             PagingMenu.this.open((Player) event.getWhoClicked(), finalPage + 1);
                         }));
-                    } else if (content.getLastFilledItem() != null) {
+                    } else if (content.getLastFilledItem() != null && nextSlot != -1) {
                         content.setClickable(nextSlot, Clickable.empty(content.getLastFilledItem()));
-                    } else {
+                    } else if (nextSlot != -1) {
                         content.setClickable(nextSlot, null);
                     }
 
