@@ -142,7 +142,7 @@ public abstract class ConfigManager {
         List<String> list = langList == null ? config.getStringList(path) : langList;
         List<String> colored = new ArrayList<>();
         for (String line : list) {
-            colored.add(ChatColor.translateAlternateColorCodes('&', line));
+            colored.add(translateColor(line));
         }
         listCache.put(path, colored);
         return getStringList(path);
