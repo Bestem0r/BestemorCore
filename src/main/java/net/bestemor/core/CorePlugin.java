@@ -72,7 +72,9 @@ public abstract class CorePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         super.onDisable();
-        this.menuListener.closeAll();
+        if (this.menuListener != null) {
+            this.menuListener.closeAll();
+        }
         Bukkit.getScheduler().cancelTasks(this);
         onPluginDisable();
     }
