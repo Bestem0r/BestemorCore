@@ -21,6 +21,8 @@ public class ItemBuilder {
 
     private final Map<Enchantment, Integer> enchants = new HashMap<>();
 
+    private boolean hideAttributes = true;
+
     protected ItemBuilder(String path) {
         this.path = path;
     }
@@ -37,6 +39,11 @@ public class ItemBuilder {
 
     public ItemBuilder replaceCurrency(String sOld, BigDecimal b) {
         currencyReplacements.put(sOld, b);
+        return this;
+    }
+
+    public ItemBuilder hideAttributes(boolean hideAttributes) {
+        hideAttributes = hideAttributes;
         return this;
     }
 
@@ -82,6 +89,9 @@ public class ItemBuilder {
             }
             if (customModelData > 0) {
                 meta.setCustomModelData(customModelData);
+            }
+            if (hideAttributes) {
+                meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
             }
         }
 

@@ -107,6 +107,9 @@ public abstract class ConfigManager {
 
     /** @return Colored string with plugin prefix */
     public static String getMessage(String path) {
+        if (prefixPath == null || getString(prefixPath).isEmpty()) {
+            return getString(path);
+        }
         return prefixPath == null ? "" : (getString(prefixPath) + (addPrefixSpace ? " " : "")) + getString(path);
     }
 
