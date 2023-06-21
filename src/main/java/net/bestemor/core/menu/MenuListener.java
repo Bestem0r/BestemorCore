@@ -10,23 +10,24 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 public class MenuListener implements Listener {
 
     private final Plugin plugin;
-    private final List<Menu> menus = new ArrayList<>();
+    private final Set<Menu> menus = new HashSet<>();
+
+    private final List<Menu> recentlyReopened = new ArrayList<>();
 
     public MenuListener(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    /** Registers menu one tick later
+    /** Registers menu
      * @param menu Menu to register **/
     public void registerMenu(Menu menu) {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> menus.add(menu), 1L);
+        menus.add(menu);
     }
 
     /** Unregisters menu
@@ -67,16 +68,29 @@ public class MenuListener implements Listener {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
 
+        Instant reopenLimit = Instant.now().minusMillis(200);
         for (Menu menu : menus) {
-            if (menu.hasPlayer(event.getPlayer())) {
-                menu.onClose(event);
-
-                if (menu.getViewers().size() == 1) {
-                    menus.remove(menu);
-                }
-                return;
+            if (menu.getLastOpenedAt().isBefore(reopenLimit)) {
+                continue;
             }
+            if (recentlyReopened.contains(menu)) {
+                continue;
+            }
+            if (!event.getView().getTitle().equals(menu.getTitle())) {
+                continue;
+            }
+            recentlyReopened.add(menu);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> menu.open((Player) event.getPlayer()), 1L);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> recentlyReopened.remove(menu), 20L);
+            return;
         }
+
+        menus.stream().sorted(Comparator.comparing(Menu::getLastOpenedAt))
+                .filter(menu -> menu.hasPlayer(event.getPlayer()))
+                .findFirst().ifPresent(menu -> menu.onClose(event));
+
+        Instant limit = Instant.now().minusSeconds(5);
+        menus.removeIf(menu -> menu.getViewers().size() == 0 && menu.getLastOpenedAt().isBefore(limit));
     }
 
 

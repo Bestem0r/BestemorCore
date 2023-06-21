@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +22,16 @@ public abstract class Menu {
     private final Inventory inventory;
 
     private boolean isCreated = false;
+    private final String title;
+
+    private Instant lastOpenedAt = Instant.now();
 
     public Menu(MenuListener listener, int size, String name) {
         this.listener = listener;
         this.content = new MenuContent(size);
 
-        this.inventory = Bukkit.createInventory(null, size, Utils.parsePAPI(name));
+        this.title = Utils.parsePAPI(name);
+        this.inventory = Bukkit.createInventory(null, size, title);
     }
 
     protected void onClick(InventoryClickEvent event) {}
@@ -67,6 +72,7 @@ public abstract class Menu {
         if (!isCreated) {
             create();
         }
+        this.lastOpenedAt = Instant.now();
         player.openInventory(inventory);
         this.listener.registerMenu(this);
     }
@@ -102,5 +108,14 @@ public abstract class Menu {
     /** @return The raw inventory used for this menu */
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    /** @return The time this menu was last opened */
+    public Instant getLastOpenedAt() {
+        return lastOpenedAt;
     }
 }
