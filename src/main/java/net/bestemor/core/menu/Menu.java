@@ -12,7 +12,6 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class Menu {
 
@@ -31,6 +30,7 @@ public abstract class Menu {
     }
 
     protected void onClick(InventoryClickEvent event) {}
+    @SuppressWarnings("unused")
     protected void onDrag(InventoryDragEvent event) {}
     protected void onClose(InventoryCloseEvent event) {}
 
@@ -75,8 +75,7 @@ public abstract class Menu {
     public boolean hasPlayer(HumanEntity entity) {
         return inventory.getViewers().stream()
                 .map(Entity::getUniqueId)
-                .collect(Collectors.toList())
-                .contains(entity.getUniqueId());
+                .anyMatch(uuid -> uuid.equals(entity.getUniqueId()));
     }
 
     /** @return List of current players viewing this menu */
@@ -90,6 +89,7 @@ public abstract class Menu {
         viewers.forEach(HumanEntity::closeInventory);
     }
 
+    @SuppressWarnings("unused")
     protected void close(HumanEntity player) {
         inventory.getViewers().removeIf(v -> v.getUniqueId().equals(player.getUniqueId()));
     }

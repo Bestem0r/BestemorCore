@@ -31,6 +31,7 @@ public class MenuListener implements Listener {
 
     /** Unregisters menu
      * @param menu Menu to unregister */
+    @SuppressWarnings("unused")
     public void unregisterMenu(Menu menu) {
         menus.remove(menu);
     }
@@ -65,10 +66,15 @@ public class MenuListener implements Listener {
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
-        menus.removeIf(menu -> menu.getViewers().size() < 1);
+
         for (Menu menu : menus) {
             if (menu.hasPlayer(event.getPlayer())) {
                 menu.onClose(event);
+
+                if (menu.getViewers().size() == 1) {
+                    menus.remove(menu);
+                }
+                return;
             }
         }
     }
@@ -81,6 +87,7 @@ public class MenuListener implements Listener {
     }
 
     /** Returns all currently registered menus */
+    @SuppressWarnings("unused")
     public Collection<Menu> getRegisteredMenus() {
         return new ArrayList<>(menus);
     }
