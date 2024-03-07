@@ -11,8 +11,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class Menu {
 
@@ -24,7 +23,7 @@ public abstract class Menu {
     private boolean isCreated = false;
     private final String title;
 
-    private Instant lastOpenedAt = Instant.now();
+    private final Map<UUID, Instant> lastOpenedAt = new HashMap<>();
 
     public Menu(MenuListener listener, int size, String name) {
         this.listener = listener;
@@ -72,7 +71,7 @@ public abstract class Menu {
         if (!isCreated) {
             create();
         }
-        this.lastOpenedAt = Instant.now();
+        lastOpenedAt.put(player.getUniqueId(), Instant.now());
         player.openInventory(inventory);
         this.listener.registerMenu(this);
     }
@@ -98,6 +97,7 @@ public abstract class Menu {
     @SuppressWarnings("unused")
     protected void close(HumanEntity player) {
         inventory.getViewers().removeIf(v -> v.getUniqueId().equals(player.getUniqueId()));
+        lastOpenedAt.remove(player.getUniqueId());
     }
 
     /** @return Content containing clickables for this menu */
@@ -114,8 +114,8 @@ public abstract class Menu {
         return title;
     }
 
-    /** @return The time this menu was last opened */
-    public Instant getLastOpenedAt() {
-        return lastOpenedAt;
+    /** @return The time this menu was last opened by the player */
+    public Instant getLastOpenedAt(UUID uuid) {
+        return lastOpenedAt.getOrDefault(uuid, Instant.MIN);
     }
 }

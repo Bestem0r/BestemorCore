@@ -12,6 +12,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MenuListener implements Listener {
 
@@ -68,9 +70,10 @@ public class MenuListener implements Listener {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
 
+        UUID playerUUID = event.getPlayer().getUniqueId();
         Instant reopenLimit = Instant.now().minusMillis(200);
         for (Menu menu : menus) {
-            if (menu.getLastOpenedAt().isBefore(reopenLimit)) {
+            if (menu.getLastOpenedAt(playerUUID).isBefore(reopenLimit)) {
                 continue;
             }
             if (recentlyReopened.contains(menu)) {
@@ -85,12 +88,20 @@ public class MenuListener implements Listener {
             return;
         }
 
-        menus.stream().sorted(Comparator.comparing(Menu::getLastOpenedAt))
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> menus.stream()
                 .filter(menu -> menu.hasPlayer(event.getPlayer()))
-                .findFirst().ifPresent(menu -> menu.onClose(event));
+                .min(Comparator.comparing(m -> m.getLastOpenedAt(playerUUID)))
+                .ifPresent(menu -> menu.onClose(event)));
 
         Instant limit = Instant.now().minusSeconds(5);
-        menus.removeIf(menu -> menu.getViewers().size() == 0 && menu.getLastOpenedAt().isBefore(limit));
+
+        Map<Menu, Boolean> menuViewerStatus = menus.stream()
+                .collect(Collectors.toConcurrentMap(Function.identity(), menu -> menu.getViewers().isEmpty()));
+
+        Map<Menu, Boolean> menuTimeStatus = menus.stream()
+                .collect(Collectors.toConcurrentMap(Function.identity(), menu -> menu.getLastOpenedAt(playerUUID).isBefore(limit)));
+
+        menus.parallelStream().filter(menuViewerStatus::get).filter(menuTimeStatus::get).forEach(menus::remove);
     }
 
 
