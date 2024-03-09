@@ -95,13 +95,13 @@ public class MenuListener implements Listener {
 
         Instant limit = Instant.now().minusSeconds(5);
 
-        Map<Menu, Boolean> menuViewerStatus = menus.stream()
-                .collect(Collectors.toConcurrentMap(Function.identity(), menu -> menu.getViewers().isEmpty()));
-
-        Map<Menu, Boolean> menuTimeStatus = menus.stream()
-                .collect(Collectors.toConcurrentMap(Function.identity(), menu -> menu.getLastOpenedAt(playerUUID).isBefore(limit)));
-
-        menus.parallelStream().filter(menuViewerStatus::get).filter(menuTimeStatus::get).forEach(menus::remove);
+        Iterator<Menu> iterator = menus.iterator();
+        while (iterator.hasNext()) {
+            Menu menu = iterator.next();
+            if (menu.getViewers().isEmpty() && menu.getLastOpenedAt(playerUUID).isBefore(limit)) {
+                iterator.remove();
+            }
+        }
     }
 
 
