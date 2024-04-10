@@ -28,7 +28,6 @@ public class Clickable {
         return new Clickable(item);
     }
 
-    /** Returns true if clickable, false if not */
     public boolean isClickable() {
         return this.consumer != null;
     }

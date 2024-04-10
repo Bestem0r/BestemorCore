@@ -2,6 +2,7 @@ package net.bestemor.core.config;
 
 import net.bestemor.core.utils.Utils;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class ItemBuilder {
 
-    private final String path;
+    private final ConfigurationSection section;
 
     private final Map<String, BigDecimal> currencyReplacements = new HashMap<>();
     private final Map<String, String> replacements = new HashMap<>();
@@ -23,44 +24,47 @@ public class ItemBuilder {
 
     private boolean hideAttributes = true;
 
-    protected ItemBuilder(String path) {
-        this.path = path;
+    public ItemBuilder(ConfigurationSection section) {
+        this.section = section;
     }
 
     public ItemBuilder replace(String sOld, String sNew) {
-        replacements.put(sOld, sNew);
+        this.replacements.put(sOld, sNew);
         return this;
     }
 
     public ItemBuilder addEnchant(Enchantment enchantment, int level) {
-        enchants.put(enchantment, level);
+        this.enchants.put(enchantment, level);
         return this;
     }
 
     public ItemBuilder replaceCurrency(String sOld, BigDecimal b) {
-        currencyReplacements.put(sOld, b);
+        this.currencyReplacements.put(sOld, b);
         return this;
     }
 
     public ItemBuilder hideAttributes(boolean hideAttributes) {
-        hideAttributes = hideAttributes;
+        this.hideAttributes = hideAttributes;
         return this;
     }
 
     public ItemStack build() {
-        String matString = ConfigManager.getString(path + ".material");
+        String matString = section.getString("material");
+        if (matString == null) {
+            return new ItemStack(Material.STONE);
+        }
 
         ItemStack item;
         if (matString.contains(":")) {
             String[] split = matString.split(":");
             item = new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(split[1]));
         } else {
-            item = new ItemStack(Material.valueOf(ConfigManager.getString(path + ".material")));
+            item = new ItemStack(Material.valueOf(matString));
         }
-        String name = ConfigManager.getString(path + ".name");
-        name = name == null || name.equals("") || name.equals(path + ".name") ? "" : Utils.parsePAPI(name);
-        ListBuilder b = new ListBuilder(path + ".lore");
-        int customModelData = ConfigManager.getInt(path + ".model");
+        String name = ConfigManager.translateColor(section.getString("name"));
+        name = name == null || name.isEmpty() ? "" : Utils.parsePAPI(name);
+        ListBuilder b = new ListBuilder(section.getStringList("lore"));
+        int customModelData = section.getInt("model");
         b.currencyReplacements = currencyReplacements;
         b.replacements = replacements;
 

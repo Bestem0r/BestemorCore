@@ -205,12 +205,12 @@ public abstract class ConfigManager {
 
     public static ListBuilder getListBuilder(String path) {
         checkConfig();
-        return new ListBuilder(path);
+        return new ListBuilder(getStringList(path));
     }
 
     public static ItemBuilder getItem(String path) {
         checkConfig();
-        return new ItemBuilder(path);
+        return new ItemBuilder(config.getConfigurationSection(path));
     }
 
     public static CurrencyBuilder getCurrencyBuilder(String path) {
@@ -364,12 +364,15 @@ public abstract class ConfigManager {
      * and hex colors using &#.
      * @param s String to colorize. */
     public static String translateColor(String s) {
+        if (s == null) {
+            return null;
+        }
         if (VersionUtils.getMCVersion() < 16) {
             return ChatColor.translateAlternateColorCodes('&', s);
         }
 
         Matcher matcher = HEX_PATTERN.matcher(s);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         while(matcher.find()) {
             matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());

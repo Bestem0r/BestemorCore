@@ -10,12 +10,12 @@ import java.util.Map;
 
 public class ListBuilder {
 
-    private final String path;
+    private final List<String> original;
     protected Map<String, String> replacements = new HashMap<>();
     protected Map<String, BigDecimal> currencyReplacements = new HashMap<>();
 
-    protected ListBuilder(String path) {
-        this.path = path;
+    protected ListBuilder(List<String> original) {
+        this.original = original;
     }
 
     public ListBuilder replace(String sOld, String sNew) {
@@ -30,7 +30,6 @@ public class ListBuilder {
 
     public List<String> build() {
 
-        List<String> original = ConfigManager.getStringList(path);
         List<String> result = new ArrayList<>();
 
         for (String line : original) {
