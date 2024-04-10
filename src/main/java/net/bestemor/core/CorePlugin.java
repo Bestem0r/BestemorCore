@@ -2,6 +2,7 @@ package net.bestemor.core;
 
 import net.bestemor.core.config.ConfigManager;
 import net.bestemor.core.config.VersionUtils;
+import net.bestemor.core.listener.ChatListener;
 import net.bestemor.core.menu.MenuListener;
 import net.bestemor.core.utils.UpdateChecker;
 import org.apache.commons.io.FileUtils;
@@ -17,6 +18,7 @@ import java.util.Objects;
 public abstract class CorePlugin extends JavaPlugin {
 
     private MenuListener menuListener;
+    private ChatListener chatListener;
 
     @Override
     public void onEnable() {
@@ -64,6 +66,9 @@ public abstract class CorePlugin extends JavaPlugin {
         if (getSpigotResourceID() != 0) {
             checkVersion();
         }
+
+        this.chatListener = new ChatListener(this);
+        getServer().getPluginManager().registerEvents(chatListener, this);
 
         onPluginEnable();
         super.onEnable();
@@ -130,7 +135,13 @@ public abstract class CorePlugin extends JavaPlugin {
         ConfigManager.clearCache();
     }
 
+    @SuppressWarnings("unused")
     public MenuListener getMenuListener() {
         return menuListener;
+    }
+
+    @SuppressWarnings("unused")
+    public ChatListener getChatListener() {
+        return chatListener;
     }
 }

@@ -17,4 +17,26 @@ public final class Utils {
     public static String parsePAPI(String str) {
         return parsePAPI(str, null);
     }
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean hasComma(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == ',') {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -76,16 +76,19 @@ public abstract class ConfigManager {
     }
 
     /** Sets path used to retrieve plugin prefix used in messages. */
+    @SuppressWarnings("unused")
     public static void setPrefixPath(String path) {
         prefixPath = path;
     }
 
     /** Sets path used for currency symbol. */
+    @SuppressWarnings("unused")
     public static void setCurrencyPath(String currencyPath) {
         ConfigManager.currencyPath = currencyPath;
     }
 
     /** Sets path used to determine if currency symbol should be before value. */
+    @SuppressWarnings("unused")
     public static void setIsBeforePath(String isBeforePath) {
         ConfigManager.isBeforePath = isBeforePath;
     }
@@ -101,6 +104,7 @@ public abstract class ConfigManager {
     /** Looks up a string in the loaded config mappings (config_mappings.yml)
      * and returns the mapped value. If no mapping is found, returns the input.
      * @return Mapped string. */
+    @SuppressWarnings("unused")
     public static String getMappedString(String s) {
         return s == null ? null : stringMappings.getOrDefault(s, s);
     }
@@ -113,6 +117,7 @@ public abstract class ConfigManager {
         return prefixPath == null ? "" : (getString(prefixPath) + (addPrefixSpace ? " " : "")) + getString(path);
     }
 
+    @SuppressWarnings("unused")
     public static Sound getSound(String path) {
         return Sound.valueOf(getString(path));
     }
@@ -122,6 +127,7 @@ public abstract class ConfigManager {
         return b != null && b;
     }
 
+    @SuppressWarnings("unused")
     public static double getDouble(String path) {
         return config.getDouble(path);
     }
@@ -131,6 +137,7 @@ public abstract class ConfigManager {
         return i == null ? 0 : i;
     }
 
+    @SuppressWarnings("unused")
     public static long getLong(String path) {
         Long l = get(path, Long.class);
         return l == null ? 0 : l;
@@ -203,6 +210,7 @@ public abstract class ConfigManager {
         }
     }
 
+    @SuppressWarnings("unused")
     public static ListBuilder getListBuilder(String path) {
         checkConfig();
         return new ListBuilder(getStringList(path));
@@ -213,6 +221,7 @@ public abstract class ConfigManager {
         return new ItemBuilder(config.getConfigurationSection(path));
     }
 
+    @SuppressWarnings("unused")
     public static CurrencyBuilder getCurrencyBuilder(String path) {
         return new CurrencyBuilder(getString(path));
     }
@@ -220,6 +229,7 @@ public abstract class ConfigManager {
     /** Returns how much time until the given instant.
      * @param time Instant to calculate remaining time to.
      * @return Time remaining as a readable string. */
+    @SuppressWarnings("unused")
     public static String getTimeLeft(Instant time) {
         if (time == null || time.getEpochSecond() == 0) {
             return getUnit("never", false);
@@ -356,6 +366,7 @@ public abstract class ConfigManager {
 
     /** Sets configuration path used to retrieve which language should be in use.
      * @param languagePath Path to language name. */
+    @SuppressWarnings("unused")
     public static void setLanguagePath(String languagePath) {
         ConfigManager.languagePath = languagePath;
     }
@@ -384,6 +395,7 @@ public abstract class ConfigManager {
     /** Sets if spacing should be added between plugin prefix and
      * message for {@link #getMessage(String)}.
      * @param addPrefixSpace If space should be added or not. */
+    @SuppressWarnings("unused")
     public static void setAddPrefixSpace(boolean addPrefixSpace) {
         ConfigManager.addPrefixSpace = addPrefixSpace;
     }

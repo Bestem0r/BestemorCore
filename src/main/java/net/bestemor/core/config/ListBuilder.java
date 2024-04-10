@@ -23,6 +23,7 @@ public class ListBuilder {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public ListBuilder replaceCurrency(String s, BigDecimal amount) {
         currencyReplacements.put(s, amount);
         return this;

@@ -28,6 +28,7 @@ public class Clickable {
         return new Clickable(item);
     }
 
+    @SuppressWarnings("unused")
     public boolean isClickable() {
         return this.consumer != null;
     }

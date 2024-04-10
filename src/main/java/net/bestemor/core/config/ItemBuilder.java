@@ -33,16 +33,19 @@ public class ItemBuilder {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public ItemBuilder addEnchant(Enchantment enchantment, int level) {
         this.enchants.put(enchantment, level);
         return this;
     }
 
+    @SuppressWarnings("unused")
     public ItemBuilder replaceCurrency(String sOld, BigDecimal b) {
         this.currencyReplacements.put(sOld, b);
         return this;
     }
 
+    @SuppressWarnings("unused")
     public ItemBuilder hideAttributes(boolean hideAttributes) {
         this.hideAttributes = hideAttributes;
         return this;
