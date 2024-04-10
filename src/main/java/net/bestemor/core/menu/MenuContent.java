@@ -1,9 +1,12 @@
 package net.bestemor.core.menu;
 
+import net.bestemor.core.config.ConfigManager;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class MenuContent {
 
@@ -21,8 +24,28 @@ public class MenuContent {
      * @param clickable Clickable associated with slot */
     public void setClickable(int slot, Clickable clickable) {
         this.clickables.put(slot, clickable);
+    }
 
-        clickables.put(slot, clickable);
+    /** Loads item from config and creates clickable, adding it
+     * to the inventory at the config specified slot
+     * @param path Config path to item
+     * @param onClick Consumer to run on click
+     */
+    public void addConfigClickable(String path, Consumer<InventoryClickEvent> onClick) {
+        Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
+        int slot = ConfigManager.getInt(path + ".slot");
+        setClickable(slot, clickable);
+    }
+
+    /** Loads item from config and creates clickable, adding it
+     * to the inventory at the specified slot
+     * @param slot Inventory slot
+     * @param path Config path to item
+     * @param onClick Consumer to run on click
+     */
+    public void setConfigClickable(int slot, String path, Consumer<InventoryClickEvent> onClick) {
+        Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
+        setClickable(slot, clickable);
     }
 
     /** Fills provided slots with item
