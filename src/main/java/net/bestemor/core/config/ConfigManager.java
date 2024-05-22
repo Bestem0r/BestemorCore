@@ -383,7 +383,7 @@ public abstract class ConfigManager {
         }
 
         Matcher matcher = HEX_PATTERN.matcher(s);
-        StringBuilder buffer = new StringBuilder();
+        StringBuffer buffer = new StringBuffer();
 
         while(matcher.find()) {
             matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());

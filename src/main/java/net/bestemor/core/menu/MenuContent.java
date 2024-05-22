@@ -31,6 +31,7 @@ public class MenuContent {
      * @param path Config path to item
      * @param onClick Consumer to run on click
      */
+    @SuppressWarnings("unused")
     public void addConfigClickable(String path, Consumer<InventoryClickEvent> onClick) {
         Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
         int slot = ConfigManager.getInt(path + ".slot");
@@ -43,6 +44,7 @@ public class MenuContent {
      * @param path Config path to item
      * @param onClick Consumer to run on click
      */
+    @SuppressWarnings("unused")
     public void setConfigClickable(int slot, String path, Consumer<InventoryClickEvent> onClick) {
         Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
         setClickable(slot, clickable);
@@ -51,6 +53,7 @@ public class MenuContent {
     /** Fills provided slots with item
      * @param item ItemStack to fill
      * @param slots Inventory slots to fill */
+    @SuppressWarnings("unused")
     public void fillSlots(ItemStack item, int... slots) {
         for (int s : slots) {
             clickables.put(s, Clickable.empty(item));
@@ -60,6 +63,7 @@ public class MenuContent {
 
     /** Fills edges of inventory with item
      * @param item ItemStack to fill */
+    @SuppressWarnings("unused")
     public void fillEdges(ItemStack item) {
         for (int s = 0; s < size; s++) {
             if (s < 9 || s > size - 9 || (s % 9 == 0) || ((s + 1) % 9 == 0)) {
@@ -71,6 +75,7 @@ public class MenuContent {
 
     /** Fills bottom of inventory with item
      * @param item ItemStack to fill */
+    @SuppressWarnings("unused")
     public void fillBottom(ItemStack item) {
         for (int s = size - 9; s < size; s++) {
             clickables.put(s, Clickable.empty(item));

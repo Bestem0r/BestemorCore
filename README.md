@@ -10,6 +10,7 @@ Core API used for all plugins made by Bestem0r.
 - Item builder directly from config
 - Language and per-version config files
 - Automatic configuration updater
+- Advanced chat listener
 - Spigot version and mc version utils
 
 # Add to Maven project
