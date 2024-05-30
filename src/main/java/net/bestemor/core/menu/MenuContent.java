@@ -1,12 +1,9 @@
 package net.bestemor.core.menu;
 
-import net.bestemor.core.config.ConfigManager;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class MenuContent {
 
@@ -19,35 +16,20 @@ public class MenuContent {
         this.size = size;
     }
 
-    /** Adds or replaces clickable inventory slot
-     * @param slot Inventory slot
-     * @param clickable Clickable associated with slot */
+    /** Adds or replaces a {@link Clickable} in the inventory
+     * @param slot inventory slot
+     * @param clickable clickable associated with slot */
     public void setClickable(int slot, Clickable clickable) {
         this.clickables.put(slot, clickable);
     }
 
-    /** Loads item from config and creates clickable, adding it
-     * to the inventory at the config specified slot
-     * @param path Config path to item
-     * @param onClick Consumer to run on click
+    /**
+     * Adds or replaces a {@link PlacedClickable} in the inventory
+     * @param placedClickable placed clickable associated with slot
      */
     @SuppressWarnings("unused")
-    public void addConfigClickable(String path, Consumer<InventoryClickEvent> onClick) {
-        Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
-        int slot = ConfigManager.getInt(path + ".slot");
-        setClickable(slot, clickable);
-    }
-
-    /** Loads item from config and creates clickable, adding it
-     * to the inventory at the specified slot
-     * @param slot Inventory slot
-     * @param path Config path to item
-     * @param onClick Consumer to run on click
-     */
-    @SuppressWarnings("unused")
-    public void setConfigClickable(int slot, String path, Consumer<InventoryClickEvent> onClick) {
-        Clickable clickable = new Clickable(ConfigManager.getItem(path).build(), onClick);
-        setClickable(slot, clickable);
+    public void setPlaced(PlacedClickable placedClickable) {
+        this.clickables.put(placedClickable.getSlot(), placedClickable);
     }
 
     /** Fills provided slots with item

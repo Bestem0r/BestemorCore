@@ -41,7 +41,7 @@ public abstract class PagingMenu extends Menu {
     /** Runs when the page is updated
      * @param content Persistent content
      * @param page Menu page */
-    protected void onUpdatePage(MenuContent content, int page) {};
+    protected void onUpdatePage(MenuContent content, int page) {}
 
     /** Runs when the PagingMenu is created or updated. PagingContent is loaded
      * and distributed across dynamically created menu pages
