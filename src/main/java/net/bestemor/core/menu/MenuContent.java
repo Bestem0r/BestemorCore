@@ -1,8 +1,10 @@
 package net.bestemor.core.menu;
 
+import net.bestemor.core.config.ConfigManager;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MenuContent {
@@ -20,6 +22,9 @@ public class MenuContent {
      * @param slot inventory slot
      * @param clickable clickable associated with slot */
     public void setClickable(int slot, Clickable clickable) {
+        if (slot < 0) {
+            return;
+        }
         this.clickables.put(slot, clickable);
     }
 
@@ -29,6 +34,9 @@ public class MenuContent {
      */
     @SuppressWarnings("unused")
     public void setPlaced(PlacedClickable placedClickable) {
+        if (placedClickable.getSlot() < 0) {
+            return;
+        }
         this.clickables.put(placedClickable.getSlot(), placedClickable);
     }
 
@@ -63,6 +71,18 @@ public class MenuContent {
             clickables.put(s, Clickable.empty(item));
         }
         this.lastFilledItem = item;
+    }
+
+    /**
+     * Fills inventory with decoration item from config.
+     * Requires the path to have a slots array and an item.
+     * @param path path to item in config
+     */
+    @SuppressWarnings("unused")
+    public void fillFromConfig(String path) {
+        List<Integer> slots = ConfigManager.getIntegerList(path + ".slots");
+        ItemStack item = ConfigManager.getItem(path).build();
+        fillSlots(item, slots.stream().mapToInt(i -> i).toArray());
     }
 
     protected ItemStack getLastFilledItem() {

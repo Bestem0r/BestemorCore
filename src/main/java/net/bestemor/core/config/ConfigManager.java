@@ -158,6 +158,11 @@ public abstract class ConfigManager {
         return getStringList(path);
     }
 
+    public static List<Integer> getIntegerList(String path) {
+        checkConfig();
+        return config.getIntegerList(path);
+    }
+
     /** Loads mappings from input stream to cache. Input stream must be possible to read
      * as YAML file. Mappings are intended as an alternative method to support multiple
      * Minecraft versions, by replacing provided keys by provided values per-version.
