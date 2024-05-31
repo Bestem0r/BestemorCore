@@ -19,6 +19,11 @@ public class PlacedClickable extends Clickable {
         this.slot = slot;
     }
 
+    public PlacedClickable(int slot, ItemStack item) {
+        super(item);
+        this.slot = slot;
+    }
+
     /**
      * Creates a PlacedClickable from a config path
      * @param path path to item in config
@@ -29,6 +34,17 @@ public class PlacedClickable extends Clickable {
     public static PlacedClickable fromConfig(String path, Consumer<InventoryClickEvent> onClick) {
         int slot = ConfigManager.getInt(path + ".slot");
         return new PlacedClickable(slot, ConfigManager.getItem(path).build(), onClick);
+    }
+
+    /**
+     * Creates a PlacedClickable from a config path with no consumer
+     * @param path path to item in config
+     * @return PlacedClickable with no consumer
+     */
+    @SuppressWarnings("unused")
+    public static PlacedClickable fromConfig(String path) {
+        int slot = ConfigManager.getInt(path + ".slot");
+        return new PlacedClickable(slot, ConfigManager.getItem(path).build());
     }
 
 
