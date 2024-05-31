@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public abstract class PagingMenu extends Menu {
 
     private final PagingContent pagingContent;
@@ -25,6 +26,7 @@ public abstract class PagingMenu extends Menu {
 
     private boolean isCreated = false;
 
+    @SuppressWarnings("unused")
     protected PagingMenu(MenuListener listener, int size, String name) {
         super(listener, size, name);
 
@@ -57,6 +59,18 @@ public abstract class PagingMenu extends Menu {
         }
         this.nextItem = nextItem;
         this.nextSlot = slot;
+    }
+
+    /** Sets ItemStack and slot used for the "next page" UI element
+     * @param clickable PlacedClickable used as the "next page" item */
+    public void setNextItem(PlacedClickable clickable) {
+        setNextItem(clickable.getItem(), clickable.getSlot());
+    }
+
+    /** Sets ItemStack and slot used for the "previous page" UI element
+     * @param clickable PlacedClickable used as the "previous page" item */
+    public void setPreviousItem(PlacedClickable clickable) {
+        setPreviousItem(clickable.getItem(), clickable.getSlot());
     }
 
     /** Sets ItemStack and slot used for the "previous page" UI element
