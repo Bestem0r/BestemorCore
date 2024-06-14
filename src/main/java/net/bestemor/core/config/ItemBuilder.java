@@ -64,6 +64,9 @@ public class ItemBuilder {
         } else {
             item = new ItemStack(Material.valueOf(matString));
         }
+        int amount = section.getInt("amount");
+        item.setAmount(amount > 0 ? amount : 1);
+
         String name = ConfigManager.translateColor(section.getString("name"));
         name = name == null || name.isEmpty() ? "" : Utils.parsePAPI(name);
         ListBuilder b = new ListBuilder(section.getStringList("lore"));
