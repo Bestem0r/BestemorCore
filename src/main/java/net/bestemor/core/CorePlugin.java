@@ -17,13 +17,13 @@ import java.util.Objects;
 
 public abstract class CorePlugin extends JavaPlugin {
 
-    private MenuListener menuListener;
+    private static MenuListener menuListener;
     private ChatListener chatListener;
 
     @Override
     public void onEnable() {
 
-        this.menuListener = new MenuListener(this);
+        menuListener = new MenuListener(this);
         getServer().getPluginManager().registerEvents(menuListener, this);
 
         ConfigManager.loadMappings(getResource("config_mappings.yml"));
@@ -77,8 +77,8 @@ public abstract class CorePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         super.onDisable();
-        if (this.menuListener != null) {
-            this.menuListener.closeAll();
+        if (menuListener != null) {
+            menuListener.closeAll();
         }
         Bukkit.getScheduler().cancelTasks(this);
         onPluginDisable();
@@ -135,8 +135,7 @@ public abstract class CorePlugin extends JavaPlugin {
         ConfigManager.clearCache();
     }
 
-    @SuppressWarnings("unused")
-    public MenuListener getMenuListener() {
+    public static MenuListener getMenuListener() {
         return menuListener;
     }
 

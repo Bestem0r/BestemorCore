@@ -1,5 +1,6 @@
 package net.bestemor.core.menu;
 
+import net.bestemor.core.CorePlugin;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 public abstract class PagingMenu extends Menu {
 
     private final PagingContent pagingContent;
-    private final MenuListener listener;
 
     private final List<Menu> menus = new ArrayList<>();
     private final String name;
@@ -26,12 +26,26 @@ public abstract class PagingMenu extends Menu {
 
     private boolean isCreated = false;
 
+    @Deprecated
     @SuppressWarnings("unused")
     protected PagingMenu(MenuListener listener, int size, String name) {
-        super(listener, size, name);
+        super(size, name);
 
         this.name = name;
-        this.listener = listener;
+        this.pagingContent = new PagingContent();
+    }
+
+    protected PagingMenu(int size, String name) {
+        super(size, name);
+
+        this.name = name;
+        this.pagingContent = new PagingContent();
+    }
+
+    protected PagingMenu(MenuConfig config) {
+        super(config);
+
+        this.name = config.getTitle();
         this.pagingContent = new PagingContent();
     }
 
@@ -150,7 +164,7 @@ public abstract class PagingMenu extends Menu {
             int finalPage = page;
             int size = super.getInventory().getSize();
             String menuName = name.replace("%page%", String.valueOf(page + 1));
-            menus.add(new Menu(listener, size, menuName) {
+            menus.add(new Menu(size, menuName) {
                 @Override
                 protected void onCreate(MenuContent content) {
                     onCreatePage(content, finalPage);

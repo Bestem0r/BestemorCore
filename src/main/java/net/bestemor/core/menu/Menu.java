@@ -1,5 +1,6 @@
 package net.bestemor.core.menu;
 
+import net.bestemor.core.CorePlugin;
 import net.bestemor.core.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -25,12 +26,29 @@ public abstract class Menu {
 
     private final Map<UUID, Instant> lastOpenedAt = new HashMap<>();
 
+    @Deprecated
     public Menu(MenuListener listener, int size, String name) {
         this.listener = listener;
         this.content = new MenuContent(size);
 
         this.title = Utils.parsePAPI(name);
         this.inventory = Bukkit.createInventory(null, size, title);
+    }
+
+    public Menu(int size, String name) {
+        this.listener = CorePlugin.getMenuListener();
+        this.content = new MenuContent(size);
+
+        this.title = Utils.parsePAPI(name);
+        this.inventory = Bukkit.createInventory(null, size, title);
+    }
+
+    public Menu(MenuConfig config) {
+        this.listener = CorePlugin.getMenuListener();
+        this.content = new MenuContent(config.getSize());
+
+        this.title = Utils.parsePAPI(config.getTitle());
+        this.inventory = Bukkit.createInventory(null, config.getSize(), title);
     }
 
     protected void onClick(InventoryClickEvent event) {}
