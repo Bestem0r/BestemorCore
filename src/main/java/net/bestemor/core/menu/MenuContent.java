@@ -81,6 +81,7 @@ public class MenuContent {
     @SuppressWarnings("unused")
     public void fillFromConfig(String path) {
         List<Integer> slots = ConfigManager.getIntegerList(path + ".slots");
+        slots.removeIf(i -> i >= size);
         ItemStack item = ConfigManager.getItem(path).build();
         fillSlots(item, slots.stream().mapToInt(i -> i).toArray());
     }
