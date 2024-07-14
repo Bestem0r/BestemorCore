@@ -59,7 +59,8 @@ public abstract class CorePlugin extends JavaPlugin {
             ConfigManager.loadLanguages(this, getLanguages());
         }
 
-        if (enableAutoUpdate()) {
+        boolean enableUpdate = !getConfig().contains("auto_update") || getConfig().getBoolean("auto_update");
+        if (enableAutoUpdate() && enableUpdate) {
             ConfigManager.updateConfig(this, fileName);
         }
 

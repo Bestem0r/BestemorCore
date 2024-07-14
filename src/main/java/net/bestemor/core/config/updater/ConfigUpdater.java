@@ -44,12 +44,6 @@ public class ConfigUpdater {
         keyLoop: for (String fullKey : defaultConfig.getKeys(true)) {
             String indents = KeyBuilder.getIndents(fullKey, SEPARATOR);
 
-            if (fullKey.endsWith("model")) {
-                continue;
-            }
-            if (fullKey.endsWith("lore")) {
-                continue;
-            }
             if (ignoredSectionsValues.isEmpty()) {
                 writeCommentIfExists(comments, writer, fullKey, indents);
             } else {
