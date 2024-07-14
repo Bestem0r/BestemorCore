@@ -229,6 +229,13 @@ public abstract class ConfigManager {
 
     public static ItemBuilder getItem(String path) {
         checkConfig();
+        ConfigurationSection section = config.getConfigurationSection(path);
+        if (section == null) {
+            section = languageConfig == null ? null : languageConfig.getConfigurationSection(path);
+        }
+        if (section == null) {
+            throw new IllegalArgumentException("No item found at path: " + path);
+        }
         return new ItemBuilder(config.getConfigurationSection(path));
     }
 
