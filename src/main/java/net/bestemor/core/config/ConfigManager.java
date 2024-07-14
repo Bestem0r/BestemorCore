@@ -236,7 +236,7 @@ public abstract class ConfigManager {
         if (section == null) {
             throw new IllegalArgumentException("No item found at path: " + path);
         }
-        return new ItemBuilder(config.getConfigurationSection(path));
+        return new ItemBuilder(section);
     }
 
     @SuppressWarnings("unused")
