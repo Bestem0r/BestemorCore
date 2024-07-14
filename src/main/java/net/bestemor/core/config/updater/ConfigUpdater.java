@@ -47,6 +47,9 @@ public class ConfigUpdater {
             if (fullKey.endsWith("model")) {
                 continue;
             }
+            if (fullKey.endsWith("lore")) {
+                continue;
+            }
             if (ignoredSectionsValues.isEmpty()) {
                 writeCommentIfExists(comments, writer, fullKey, indents);
             } else {

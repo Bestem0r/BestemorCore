@@ -163,6 +163,12 @@ public abstract class ConfigManager {
         return config.getIntegerList(path);
     }
 
+    @SuppressWarnings("unused")
+    public static int[] getIntArray(String path) {
+        List<Integer> list = getIntegerList(path);
+        return list.stream().mapToInt(i -> i).toArray();
+    }
+
     /** Loads mappings from input stream to cache. Input stream must be possible to read
      * as YAML file. Mappings are intended as an alternative method to support multiple
      * Minecraft versions, by replacing provided keys by provided values per-version.
@@ -349,7 +355,7 @@ public abstract class ConfigManager {
                     targetConfig.save(target);
                 }
                 if (plugin.enableAutoUpdate()) {
-                    ConfigUpdater.update(plugin, fileName + ".yml",  new File(plugin.getDataFolder() + "/" + languagesFolder.getName() + "/" + language + ".yml"));
+                    ConfigUpdater.update(plugin, fileName + ".yml",  target);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
