@@ -149,7 +149,7 @@ public abstract class ConfigManager {
             return listCache.get(path);
         }
         List<String> langList = languageConfig == null ? null : languageConfig.getStringList(path);
-        List<String> list = langList == null ? config.getStringList(path) : langList;
+        List<String> list = langList == null || langList.isEmpty() ? config.getStringList(path) : langList;
         List<String> colored = new ArrayList<>();
         for (String line : list) {
             colored.add(translateColor(line));
@@ -160,7 +160,9 @@ public abstract class ConfigManager {
 
     public static List<Integer> getIntegerList(String path) {
         checkConfig();
-        return config.getIntegerList(path);
+        List<Integer> langList = languageConfig == null ? null : languageConfig.getIntegerList(path);
+
+        return langList == null || langList.isEmpty() ? config.getIntegerList(path) : langList;
     }
 
     @SuppressWarnings("unused")
