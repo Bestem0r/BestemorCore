@@ -23,7 +23,7 @@ public abstract class CorePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        menuListener = new MenuListener(this);
+        menuListener = new MenuListener();
         getServer().getPluginManager().registerEvents(menuListener, this);
 
         ConfigManager.loadMappings(getResource("config_mappings.yml"));

@@ -131,7 +131,11 @@ public abstract class PagingMenu extends Menu {
         if (!isCreated) {
             create();
         }
-        menus.get(page).open(player);
+        Menu menu = menus.get(page);
+        if (listener.hasMenu(player, menu)) {
+            return;
+        }
+        menu.open(player);
     }
 
     public int getPages() {
@@ -212,6 +216,7 @@ public abstract class PagingMenu extends Menu {
                 @Override
                 protected void onClose(InventoryCloseEvent event) {
                     PagingMenu.this.onClose(event, finalPage);
+                    PagingMenu.this.onClose(event);
                 }
             });
         }
