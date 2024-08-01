@@ -363,7 +363,8 @@ public abstract class ConfigManager {
                     FileConfiguration targetConfig = YamlConfiguration.loadConfiguration(target);
                     targetConfig.save(target);
                 }
-                if (plugin.enableAutoUpdate()) {
+                boolean enableUpdate = !config.contains("auto_update") || config.getBoolean("auto_update");
+                if (plugin.enableAutoUpdate() && enableUpdate) {
                     ConfigUpdater.update(plugin, fileName + ".yml",  target);
                 }
             } catch (Exception e) {
