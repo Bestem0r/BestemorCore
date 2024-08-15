@@ -52,7 +52,7 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
-        String matString = section.getString("material");
+        String matString = getString("material");
         if (matString == null) {
             return new ItemStack(Material.STONE);
         }
@@ -67,7 +67,7 @@ public class ItemBuilder {
         int amount = section.getInt("amount");
         item.setAmount(amount > 0 ? amount : 1);
 
-        String name = ConfigManager.translateColor(section.getString("name"));
+        String name = ConfigManager.translateColor(getString("name"));
         name = name == null || name.isEmpty() ? "" : Utils.parsePAPI(name);
         ListBuilder b = new ListBuilder(section.getStringList("lore"));
         int customModelData = section.getInt("model");
@@ -107,5 +107,9 @@ public class ItemBuilder {
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    private String getString(String key) {
+        return ConfigManager.getMappedString(section.getString(key));
     }
 }
