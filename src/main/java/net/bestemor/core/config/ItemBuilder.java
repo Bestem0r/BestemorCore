@@ -1,6 +1,8 @@
 package net.bestemor.core.config;
 
+import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import net.bestemor.core.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -58,7 +60,10 @@ public class ItemBuilder {
         }
 
         ItemStack item;
-        if (matString.contains(":")) {
+        if (matString.startsWith("hdb:") && Bukkit.getPluginManager().isPluginEnabled("HeadDatabase")) {
+            HeadDatabaseAPI api = new HeadDatabaseAPI();
+            item = api.getItemHead(matString.replace("hdb:", ""));
+        } else if (matString.contains(":")) {
             String[] split = matString.split(":");
             item = new ItemStack(Material.valueOf(split[0]), 1, Short.parseShort(split[1]));
         } else {
