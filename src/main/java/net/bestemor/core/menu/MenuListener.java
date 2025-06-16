@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -41,6 +42,10 @@ public class MenuListener implements Listener {
             event.setCancelled(true);
             menu.onClick(event);
             if (menu.getContent().getClickables().containsKey(slot) && menu.getContent().getClickables().get(slot) != null) {
+                if (event.getClick() == ClickType.DOUBLE_CLICK) {
+                    // Prevent double-click causing three clicks
+                    return;
+                }
                 menu.getContent().getClickables().get(slot).onClick(event);
             }
         }
