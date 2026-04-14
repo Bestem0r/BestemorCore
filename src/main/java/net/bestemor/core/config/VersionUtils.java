@@ -11,7 +11,7 @@ public abstract class VersionUtils {
 
     public static int getMCVersion() {
         String version = Bukkit.getVersion();
-        Matcher matcher = Pattern.compile("MC: \\d\\.(\\d+)").matcher(version);
+        Matcher matcher = Pattern.compile("MC: (?:1\\.)?(\\d+)").matcher(version);
         if (matcher.find()) {
             return Integer.parseInt(matcher.group(1));
         } else {
